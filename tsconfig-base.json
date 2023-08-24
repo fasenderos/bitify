@@ -1,0 +1,5 @@
+{
+    // when ts-node release this https://github.com/TypeStrong/ts-node/issues/2000
+    // change with ["@tsconfig/strictest/tsconfig.json", "@tsconfig/node-lts/tsconfig.json"]
+    "extends": "@tsconfig/strictest/tsconfig.json",
+}

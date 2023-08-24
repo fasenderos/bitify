@@ -1,0 +1,25 @@
+{
+  "name": "bitify",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "cleanall": "rm pnpm-lock.yaml && pnpm run clean",
+    "clean": "rm -rf node_modules packages/*/node_modules",
+    "format": "pnpm run workspace -- format",
+    "lint": "pnpm run workspace -- lint",
+    "prepare": "husky install",
+    "test": "pnpm run workspace -- test",
+    "start": "pnpm run workspace -- start",
+    "start:dev": "pnpm run workspace -- start:dev",
+    "workspace": "pnpm -r --workspace-concurrency=1"
+  },
+  "packageManager": "pnpm@8.6.10",
+  "engines" : {
+    "node" : ">=18"
+  },
+  "devDependencies": {
+    "@tsconfig/node-lts": "^18.12.3",
+    "@tsconfig/strictest": "^2.0.1",
+    "husky": "^8.0.0"
+  }
+}
