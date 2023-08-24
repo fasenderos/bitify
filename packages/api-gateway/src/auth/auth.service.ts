@@ -1,8 +1,18 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { compare } from 'bcrypt';
 import { UserService } from '../user/user.service';
 import { SessionService } from './session.service';
 import { TokenService } from './token.service';
+import { User } from '../user/user.entity';
+import { authenticator } from 'otplib';
+import { toDataURL } from 'qrcode';
+import { ConfigService } from '@nestjs/config';
+import { Verify2FADto } from './dto/verify-2fa.dto';
+import { CipherService } from '../common/modules/cipher/cipher.service';
 
 export interface ISignInResponse {
   accessToken: string;
@@ -11,11 +21,17 @@ export interface ISignInResponse {
 
 @Injectable()
 export class AuthService {
+  APP_NAME: string;
+
   constructor(
     private readonly session: SessionService,
     private readonly token: TokenService,
     private readonly user: UserService,
-  ) {}
+    private readonly cipher: CipherService,
+    private readonly config: ConfigService,
+  ) {
+    this.APP_NAME = this.config.get<string>('app.name') as string;
+  }
 
   async signUp(email: string, password: string): Promise<void> {
     await this.user.createUser({ email, password });
@@ -46,7 +62,7 @@ export class AuthService {
 
   async logout(auth: string): Promise<void> {
     const jwt = this.token.decode(auth);
-    await this.session.deleteById(jwt.jti, false);
+    await this.session.deleteById(jwt.jti);
   }
 
   async refreshToken(auth: string): Promise<ISignInResponse> {
@@ -59,6 +75,41 @@ export class AuthService {
     );
     await this.session.refreshSession(jwt.jti, now);
     return { accessToken, refreshToken };
+  }
+
+  async enable2FA(user: User) {
+    // Generate secret for this user
+    const secret = authenticator.generateSecret();
+    // Generate otpauth uri
+    const otpauth = authenticator.keyuri(user.email, this.APP_NAME, secret);
+    // Create QR Code from otpauth
+    const qrcode = await toDataURL(otpauth);
+    return {
+      secret,
+      qrcode,
+    };
+  }
+
+  async verify2FA(userId: string, dto: Verify2FADto): Promise<void> {
+    const isValid = this.isOTPValid(dto.otp, dto.secret);
+    if (!isValid)
+      throw new ForbiddenException(
+        'The provided one time password is not valid',
+      );
+
+    // Save secret (encrypted) to db and enable 2FA
+    await this.user.updateById(userId, {
+      twoFactorEnabled: true,
+      twoFactorSecret: this.cipher.encrypt(dto.secret),
+    });
+  }
+
+  private isOTPValid(otp: string, secret: string): boolean {
+    if (!otp || !secret) return false;
+    return authenticator.verify({
+      token: otp,
+      secret: secret,
+    });
   }
 
   private async createTokens(

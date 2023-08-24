@@ -4,10 +4,9 @@ import { Repository } from 'typeorm';
 import { Session } from './entities/session.entity';
 import { ConfigService } from '@nestjs/config';
 import timestring from 'timestring';
-import { BaseService } from '../base/base.service';
 
 @Injectable()
-export class SessionService extends BaseService<Session> {
+export class SessionService {
   EXP_MS_REFRESH: number;
 
   constructor(
@@ -15,7 +14,6 @@ export class SessionService extends BaseService<Session> {
     private readonly session: Repository<Session>,
     private readonly configService: ConfigService,
   ) {
-    super(session);
     const expRefreshToken = this.configService.get<string>(
       'auth.expRefreshToken',
     ) as string;
@@ -31,5 +29,13 @@ export class SessionService extends BaseService<Session> {
   async refreshSession(sessionId: string, now: number): Promise<void> {
     const expires = new Date(now + this.EXP_MS_REFRESH);
     await this.session.update({ id: sessionId }, { expires });
+  }
+
+  public findById(sessionId: string) {
+    return this.session.findOneBy({ id: sessionId });
+  }
+
+  public async deleteById(id: string): Promise<void> {
+    await this.session.delete(id);
   }
 }

@@ -7,8 +7,12 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { DatabaseError } from 'pg';
 import { hash } from 'bcrypt';
 import { User } from './user.entity';
-import { InsertResult, QueryFailedError, Repository } from 'typeorm';
-import { BaseService } from '../base/base.service';
+import {
+  InsertResult,
+  QueryFailedError,
+  Repository,
+  UpdateResult,
+} from 'typeorm';
 
 interface IUserCreate {
   email: string;
@@ -16,12 +20,14 @@ interface IUserCreate {
 }
 
 @Injectable()
-export class UserService extends BaseService<User> {
+export class UserService {
   constructor(
     @InjectRepository(User)
     private readonly user: Repository<User>,
-  ) {
-    super(user);
+  ) {}
+
+  public findById(userId: string) {
+    return this.user.findOneBy({ id: userId });
   }
 
   public async createUser({
@@ -44,5 +50,9 @@ export class UserService extends BaseService<User> {
 
   async getUserByEmail(email: string): Promise<User | null> {
     return await this.user.findOneBy({ email });
+  }
+
+  async updateById(id: string, data: any): Promise<UpdateResult> {
+    return this.user.update(id, data);
   }
 }

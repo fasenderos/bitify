@@ -23,8 +23,14 @@ export class User {
   @Column({ nullable: true })
   lastName?: string;
 
-  @Column()
+  @Column({ select: false })
   passwordHash!: string;
+
+  @Column({ default: false })
+  twoFactorEnabled!: string;
+
+  @Column({ nullable: true, select: false })
+  twoFactorSecret?: string;
 
   @CreateDateColumn()
   createdAt!: Date;
