@@ -11,9 +11,6 @@ export class Session {
   @Column()
   userIp!: string;
 
-  @Column()
-  token!: string;
-
   @Column({ type: 'timestamp' })
   expires!: Date;
 }

@@ -4,16 +4,16 @@ import { Repository } from 'typeorm';
 import { Session } from './entities/session.entity';
 import { ConfigService } from '@nestjs/config';
 import timestring from 'timestring';
+import { BaseService } from '../base/base.service';
 
 interface ISessionCreate {
   userId: string;
   userIp: string;
-  token: string;
   now: number;
 }
 
 @Injectable()
-export class SessionService {
+export class SessionService extends BaseService<Session> {
   EXP_MS_REFRESH: number;
 
   constructor(
@@ -21,6 +21,7 @@ export class SessionService {
     private readonly session: Repository<Session>,
     private readonly configService: ConfigService,
   ) {
+    super(session);
     const expRefreshToken = this.configService.get<string>(
       'auth.expRefreshToken',
     ) as string;
@@ -30,10 +31,10 @@ export class SessionService {
   async createSession({
     userId,
     userIp,
-    token,
     now,
-  }: ISessionCreate): Promise<void> {
+  }: ISessionCreate): Promise<Session> {
     const expires = new Date(now + this.EXP_MS_REFRESH);
-    await this.session.insert({ userId, userIp, expires, token });
+    const session = await this.session.insert({ userId, userIp, expires });
+    return session.raw[0];
   }
 }

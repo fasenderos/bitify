@@ -6,6 +6,7 @@ import { ConfigService } from '@nestjs/config';
 export interface IJwtPayload {
   iss: string;
   sub: string;
+  jti: string;
   type: string;
   iat: number;
 }
@@ -27,10 +28,15 @@ export class TokenService {
     ) as string;
   }
 
-  async generateAccessToken(userId: string, now: number): Promise<string> {
+  async generateAccessToken(
+    userId: string,
+    sessionId: string,
+    now: number,
+  ): Promise<string> {
     const payload: IJwtPayload = {
       iss: this.APP_NAME,
       sub: userId,
+      jti: sessionId,
       type: TokenTypes.ACCESS,
       iat: now,
     };
@@ -40,10 +46,15 @@ export class TokenService {
     return accessToken;
   }
 
-  async generateRefreshToken(userId: string, now: number): Promise<string> {
+  async generateRefreshToken(
+    userId: string,
+    sessionId: string,
+    now: number,
+  ): Promise<string> {
     const payload: IJwtPayload = {
       iss: this.APP_NAME,
       sub: userId,
+      jti: sessionId,
       type: TokenTypes.ACCESS,
       iat: now,
     };
@@ -51,5 +62,11 @@ export class TokenService {
       expiresIn: this.EXP_REFRESH,
     });
     return accessToken;
+  }
+
+  decode(token: string): IJwtPayload {
+    return this.jwt.decode(token.replace('Bearer ', ''), {
+      json: true,
+    }) as IJwtPayload;
   }
 }

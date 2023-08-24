@@ -1,8 +1,17 @@
-import { Controller, Body, ValidationPipe, Post } from '@nestjs/common';
+import {
+  Controller,
+  Body,
+  ValidationPipe,
+  Post,
+  Headers,
+  Get,
+  UseGuards,
+} from '@nestjs/common';
 import { SignUpDto } from './dto/signup.dto';
 import { SignInDto } from './dto/signin.dto';
 import { AuthService } from './auth.service';
 import { RealIP } from 'nestjs-real-ip';
+import { JwtAuthGuard } from './guards/jwt-auth.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -21,5 +30,11 @@ export class AuthController {
   ): Promise<any> {
     const { email, password } = dto;
     return await this.auth.signIn(email, password, userIp);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('logout')
+  async logout(@Headers('Authorization') auth: string): Promise<any> {
+    return await this.auth.logout(auth);
   }
 }

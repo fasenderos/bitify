@@ -10,11 +10,11 @@ import { TokenService } from './token.service';
 import { AuthService } from './auth.service';
 import { Session } from './entities/session.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { JwtStrategy } from './strategies/jwt-strategy';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Session]),
-    PassportModule.register({ defaultStrategy: 'jwt' }),
+    PassportModule,
     JwtModule.registerAsync({
       useFactory: async (configService: ConfigService) => ({
         secret: configService.get<AppConfig['auth']['secretAccessToken']>(
@@ -28,9 +28,10 @@ import { TypeOrmModule } from '@nestjs/typeorm';
       }),
       inject: [ConfigService],
     }),
+    TypeOrmModule.forFeature([Session]),
     UserModule,
   ],
-  providers: [AuthService, SessionService, TokenService],
+  providers: [AuthService, JwtStrategy, SessionService, TokenService],
   controllers: [AuthController],
 })
 export class AuthModule {}

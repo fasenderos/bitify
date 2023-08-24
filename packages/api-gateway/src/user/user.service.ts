@@ -21,7 +21,7 @@ export class UserService extends BaseService<User> {
     @InjectRepository(User)
     private readonly user: Repository<User>,
   ) {
-    super();
+    super(user);
   }
 
   public async createUser({

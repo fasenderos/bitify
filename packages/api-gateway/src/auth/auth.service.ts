@@ -39,14 +39,27 @@ export class AuthService {
       );
 
     const now = Date.now();
-    const accessToken = await this.token.generateAccessToken(user.id, now);
-    const refreshToken = await this.token.generateRefreshToken(user.id, now);
-    await this.session.createSession({
+    const session = await this.session.createSession({
       userId: user.id,
       userIp,
-      token: refreshToken,
       now,
     });
+    const accessToken = await this.token.generateAccessToken(
+      user.id,
+      session.id,
+      now,
+    );
+    const refreshToken = await this.token.generateRefreshToken(
+      user.id,
+      session.id,
+      now,
+    );
+
     return { accessToken, refreshToken };
+  }
+
+  async logout(auth: string): Promise<void> {
+    const jwt = this.token.decode(auth);
+    await this.session.deleteById(jwt.jti, false);
   }
 }
