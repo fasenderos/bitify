@@ -7,6 +7,7 @@
     "clean": "rm -rf node_modules packages/*/node_modules",
     "format": "pnpm run workspace -- format",
     "lint": "pnpm run workspace -- lint",
+    "lint:fix": "pnpm run workspace -- lint:fix",
     "prepare": "husky install",
     "test": "pnpm run workspace -- test",
     "start": "pnpm run workspace -- start",

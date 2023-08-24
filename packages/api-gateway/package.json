@@ -11,7 +11,8 @@
     "start:dev:db": "bash ./scripts/start-db.sh",
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main",
-    "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
+    "lint": "eslint \"{src,apps,libs,test}/**/*.ts\"",
+    "lint:fix": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
     "test": "pnpm run lint && c8 tap"
   },
   "author": "Andrea Fassina <andrea.fassina82@gmail.com>",
