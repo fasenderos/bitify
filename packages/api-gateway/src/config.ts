@@ -41,6 +41,9 @@ export default (): AppConfig => ({
     password: ensureValues('POSTGRES_PASSWORD'),
     database: ensureValues('POSTGRES_DATABASE'),
   },
+  encryption: {
+    secret: ensureValues('ENCRYPTION_KEY'),
+  },
   server: {
     address: ensureValues('SERVER_ADDRESS'),
     port: parseInt(ensureValues('SERVER_PORT'), 10),

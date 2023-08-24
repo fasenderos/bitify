@@ -22,6 +22,9 @@ export interface AppConfig {
     password: string;
     database: string;
   };
+  encryption: {
+    secret: string;
+  };
   server: {
     address: string;
     port: number;
