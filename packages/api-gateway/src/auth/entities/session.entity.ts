@@ -9,8 +9,5 @@ export class Session {
   userId!: string;
 
   @Column()
-  userIp!: string;
-
-  @Column({ type: 'timestamp' })
   expires!: Date;
 }

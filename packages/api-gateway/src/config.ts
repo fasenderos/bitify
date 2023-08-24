@@ -28,11 +28,11 @@ export default (): AppConfig => ({
   },
   auth: {
     expAccessToken: '15m',
-    expRefreshToken: '30d',
+    expRefreshToken: '7d',
     expVerifyMail: '8m',
     expResetPassword: '8m',
     secretAccessToken: ensureValues('JWT_SECRET_ACCESS_TOKEN'),
-    cookieSecret: ensureValues('COOKIE_SECRET'),
+    secretRefreshToken: ensureValues('JWT_SECRET_REFRESH_TOKEN'),
   },
   db: {
     host: ensureValues('POSTGRES_HOST'),

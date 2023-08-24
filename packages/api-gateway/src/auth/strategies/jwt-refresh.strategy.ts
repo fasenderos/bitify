@@ -8,7 +8,10 @@ import { UserService } from '../../user/user.service';
 import { SessionService } from '../session.service';
 
 @Injectable()
-export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
+export class JwtRefreshStrategy extends PassportStrategy(
+  Strategy,
+  'jwt-refresh',
+) {
   constructor(
     readonly config: ConfigService,
     private readonly session: SessionService,
@@ -17,7 +20,7 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
-      secretOrKey: config.get<string>('auth.secretAccessToken'),
+      secretOrKey: config.get<string>('auth.secretRefreshToken'),
     });
   }
 

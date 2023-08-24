@@ -14,6 +14,8 @@ export interface IJwtPayload {
 @Injectable()
 export class TokenService {
   APP_NAME: string;
+  ACCESS_SECRET: string;
+  REFRESH_SECRET: string;
   EXP_ACCESS: string;
   EXP_REFRESH: string;
 
@@ -22,6 +24,12 @@ export class TokenService {
     private readonly config: ConfigService,
   ) {
     this.APP_NAME = this.config.get<string>('app.name') as string;
+    this.ACCESS_SECRET = this.config.get<string>(
+      'auth.secretAccessToken',
+    ) as string;
+    this.REFRESH_SECRET = this.config.get<string>(
+      'auth.secretRefreshToken',
+    ) as string;
     this.EXP_ACCESS = this.config.get<string>('auth.expAccessToken') as string;
     this.EXP_REFRESH = this.config.get<string>(
       'auth.expRefreshToken',
@@ -41,6 +49,7 @@ export class TokenService {
       iat: now,
     };
     const accessToken = await this.jwt.signAsync(payload, {
+      secret: this.ACCESS_SECRET,
       expiresIn: this.EXP_ACCESS,
     });
     return accessToken;
@@ -59,6 +68,7 @@ export class TokenService {
       iat: now,
     };
     const accessToken = await this.jwt.signAsync(payload, {
+      secret: this.REFRESH_SECRET,
       expiresIn: this.EXP_REFRESH,
     });
     return accessToken;

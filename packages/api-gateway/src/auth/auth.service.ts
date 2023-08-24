@@ -21,11 +21,7 @@ export class AuthService {
     await this.user.createUser({ email, password });
   }
 
-  async signIn(
-    email: string,
-    password: string,
-    userIp: string,
-  ): Promise<ISignInResponse> {
+  async signIn(email: string, password: string): Promise<ISignInResponse> {
     const user = await this.user.getUserByEmail(email);
     if (user == null)
       throw new UnauthorizedException(
@@ -39,27 +35,41 @@ export class AuthService {
       );
 
     const now = Date.now();
-    const session = await this.session.createSession({
-      userId: user.id,
-      userIp,
-      now,
-    });
-    const accessToken = await this.token.generateAccessToken(
+    const session = await this.session.createSession(user.id, now);
+    const { accessToken, refreshToken } = await this.createTokens(
       user.id,
       session.id,
       now,
     );
-    const refreshToken = await this.token.generateRefreshToken(
-      user.id,
-      session.id,
-      now,
-    );
-
     return { accessToken, refreshToken };
   }
 
   async logout(auth: string): Promise<void> {
     const jwt = this.token.decode(auth);
     await this.session.deleteById(jwt.jti, false);
+  }
+
+  async refreshToken(auth: string): Promise<ISignInResponse> {
+    const jwt = this.token.decode(auth);
+    const now = Date.now();
+    const { accessToken, refreshToken } = await this.createTokens(
+      jwt.sub,
+      jwt.jti,
+      now,
+    );
+    await this.session.refreshSession(jwt.jti, now);
+    return { accessToken, refreshToken };
+  }
+
+  private async createTokens(
+    userId: string,
+    sessionId: string,
+    now: number,
+  ): Promise<ISignInResponse> {
+    const tokens = await Promise.all([
+      this.token.generateAccessToken(userId, sessionId, now),
+      this.token.generateRefreshToken(userId, sessionId, now),
+    ]);
+    return { accessToken: tokens[0], refreshToken: tokens[1] };
   }
 }

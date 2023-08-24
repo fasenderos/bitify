@@ -6,12 +6,6 @@ import { ConfigService } from '@nestjs/config';
 import timestring from 'timestring';
 import { BaseService } from '../base/base.service';
 
-interface ISessionCreate {
-  userId: string;
-  userIp: string;
-  now: number;
-}
-
 @Injectable()
 export class SessionService extends BaseService<Session> {
   EXP_MS_REFRESH: number;
@@ -28,13 +22,14 @@ export class SessionService extends BaseService<Session> {
     this.EXP_MS_REFRESH = timestring(expRefreshToken, 'ms');
   }
 
-  async createSession({
-    userId,
-    userIp,
-    now,
-  }: ISessionCreate): Promise<Session> {
+  async createSession(userId: string, now: number): Promise<Session> {
     const expires = new Date(now + this.EXP_MS_REFRESH);
-    const session = await this.session.insert({ userId, userIp, expires });
+    const session = await this.session.insert({ userId, expires });
     return session.raw[0];
+  }
+
+  async refreshSession(sessionId: string, now: number): Promise<void> {
+    const expires = new Date(now + this.EXP_MS_REFRESH);
+    await this.session.update({ id: sessionId }, { expires });
   }
 }
