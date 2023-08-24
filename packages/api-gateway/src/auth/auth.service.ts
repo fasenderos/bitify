@@ -1,9 +1,4 @@
-import {
-  ForbiddenException,
-  Injectable,
-  UnauthorizedException,
-} from '@nestjs/common';
-import { compare } from 'bcrypt';
+import { ForbiddenException, Injectable } from '@nestjs/common';
 import { UserService } from '../user/user.service';
 import { SessionService } from './session.service';
 import { TokenService } from './token.service';
@@ -14,7 +9,11 @@ import { ConfigService } from '@nestjs/config';
 import { Verify2FADto } from './dto/verify-2fa.dto';
 import { CipherService } from '../common/modules/cipher/cipher.service';
 
-export interface ISignInResponse {
+export interface I2FAResponse {
+  twoFactorToken: string;
+}
+
+export interface ILoginResponse {
   accessToken: string;
   refreshToken: string;
 }
@@ -33,31 +32,20 @@ export class AuthService {
     this.APP_NAME = this.config.get<string>('app.name') as string;
   }
 
-  async signUp(email: string, password: string): Promise<void> {
+  async register(email: string, password: string): Promise<void> {
     await this.user.createUser({ email, password });
   }
 
-  async signIn(email: string, password: string): Promise<ISignInResponse> {
-    const user = await this.user.getUserByEmail(email);
-    if (user == null)
-      throw new UnauthorizedException(
-        'You have entered an invalid email or password',
-      );
-
-    const match = await compare(password, user.passwordHash);
-    if (!match)
-      throw new UnauthorizedException(
-        'You have entered an invalid email or password',
-      );
-
-    const now = Date.now();
-    const session = await this.session.createSession(user.id, now);
-    const { accessToken, refreshToken } = await this.createTokens(
-      user.id,
-      session.id,
-      now,
-    );
-    return { accessToken, refreshToken };
+  async login(
+    email: string,
+    password: string,
+  ): Promise<ILoginResponse | I2FAResponse> {
+    const user = await this.user.validateUserPassword(email, password);
+    if (user.twoFactorEnabled && user.twoFactorSecret) {
+      const twoFactorToken = await this.token.generate2FAToken(user.id);
+      return { twoFactorToken };
+    }
+    return this.finalizeLogin(user.id);
   }
 
   async logout(auth: string): Promise<void> {
@@ -65,7 +53,7 @@ export class AuthService {
     await this.session.deleteById(jwt.jti);
   }
 
-  async refreshToken(auth: string): Promise<ISignInResponse> {
+  async refreshToken(auth: string): Promise<ILoginResponse> {
     const jwt = this.token.decode(auth);
     const now = Date.now();
     const { accessToken, refreshToken } = await this.createTokens(
@@ -75,6 +63,20 @@ export class AuthService {
     );
     await this.session.refreshSession(jwt.jti, now);
     return { accessToken, refreshToken };
+  }
+
+  async verifyOTP(userId: string, otp: string) {
+    const user = await this.user.getUserWithUnselected({ id: userId });
+    if (!user || !user.twoFactorSecret || !user.twoFactorEnabled)
+      throw new ForbiddenException('Wrong OTP configuration');
+
+    const userSecret = this.cipher.decrypt(user.twoFactorSecret);
+    const isValid = this.isOTPValid(otp, userSecret);
+
+    if (!isValid)
+      throw new ForbiddenException(
+        'The provided one time password is not valid',
+      );
   }
 
   async enable2FA(user: User) {
@@ -88,6 +90,13 @@ export class AuthService {
       secret,
       qrcode,
     };
+  }
+
+  async disable2FA(userId: string) {
+    await this.user.updateById(userId, {
+      twoFactorEnabled: false,
+      twoFactorSecret: null,
+    });
   }
 
   async verify2FA(userId: string, dto: Verify2FADto): Promise<void> {
@@ -104,8 +113,18 @@ export class AuthService {
     });
   }
 
+  async finalizeLogin(userId: string) {
+    const now = Date.now();
+    const session = await this.session.createSession(userId, now);
+    const { accessToken, refreshToken } = await this.createTokens(
+      userId,
+      session.id,
+      now,
+    );
+    return { accessToken, refreshToken };
+  }
+
   private isOTPValid(otp: string, secret: string): boolean {
-    if (!otp || !secret) return false;
     return authenticator.verify({
       token: otp,
       secret: secret,
@@ -116,7 +135,7 @@ export class AuthService {
     userId: string,
     sessionId: string,
     now: number,
-  ): Promise<ISignInResponse> {
+  ): Promise<ILoginResponse> {
     const tokens = await Promise.all([
       this.token.generateAccessToken(userId, sessionId, now),
       this.token.generateRefreshToken(userId, sessionId, now),

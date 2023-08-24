@@ -10,18 +10,22 @@ import { Session } from './entities/session.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { JwtStrategy } from './strategies/jwt-strategy';
 import { JwtRefreshStrategy } from './strategies/jwt-refresh.strategy';
+import { Jwt2FAStrategy } from './strategies/jwt-2fa.strategy';
+import { CipherModule } from '../common/modules/cipher/cipher.module';
 
 @Module({
   imports: [
-    PassportModule,
+    CipherModule,
     JwtModule.register({}),
+    PassportModule,
     TypeOrmModule.forFeature([Session]),
     UserModule,
   ],
   providers: [
     AuthService,
-    JwtStrategy,
+    Jwt2FAStrategy,
     JwtRefreshStrategy,
+    JwtStrategy,
     SessionService,
     TokenService,
   ],

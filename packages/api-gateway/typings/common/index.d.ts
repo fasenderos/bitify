@@ -8,10 +8,12 @@ export interface AppConfig {
     version: string;
   };
   auth: {
+    exp2FAToken: string;
     expAccessToken: string;
     expRefreshToken: string;
     expVerifyMail: string;
     expResetPassword: string;
+    secret2FAToken: string;
     secretAccessToken: string;
     secretRefreshToken: string;
   };
