@@ -2,14 +2,6 @@
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": ["config:base"],
   "rangeStrategy": "update-lockfile",
-  "ignoreDeps": [
-    "camelcase",
-    "mysql",
-    "swagger-ui-react",
-    "leven",
-    "ora",
-    "graphiql"
-  ],
   "prHourlyLimit": 10,
   "packageRules": [
     {
