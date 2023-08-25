@@ -56,6 +56,9 @@ importers:
       class-validator:
         specifier: ^0.14.0
         version: 0.14.0
+      cryptr:
+        specifier: ^6.2.0
+        version: 6.2.0
       nestjs-pino:
         specifier: ^3.3.0
         version: 3.3.0(@nestjs/common@10.1.2)(pino-http@8.3.3)
@@ -2101,6 +2104,10 @@ packages:
       shebang-command: 2.0.0
       which: 2.0.2
     dev: true
+
+  /cryptr@6.2.0:
+    resolution: {integrity: sha512-jYi8SxvOFebTT7EYOABiPpHKY6lwWaP9IVcvT/aIVJUVoFdzTgi0ySPCL78q1ig8w2kwfXFCZACXoCXaye57aw==}
+    dev: false
 
   /date-fns@2.30.0:
     resolution: {integrity: sha512-fnULvOpxnC5/Vg3NCiWelDsLiUc9bRwAPs/+LfTLNvetFCtCTN+yQz15C/fs4AwX1R9K5GLtLfn8QW+dWisaAw==}

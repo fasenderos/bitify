@@ -24,7 +24,7 @@ export const COOKIES = {
 export default (): AppConfig => {
   const encryptSecret = ensureValues('ENCRYPTION_KEY');
   if (encryptSecret.length !== 32) {
-    throw new Error('ENCRYPTION_KEY must be a 32 chars length string');
+    throw new Error('ENCRYPTION_KEY must be a 32-length string');
   }
   return {
     app: {
@@ -49,7 +49,7 @@ export default (): AppConfig => {
       database: ensureValues('POSTGRES_DATABASE'),
     },
     encryption: {
-      secret: ensureValues('ENCRYPTION_KEY'),
+      secret: encryptSecret,
     },
     server: {
       address: ensureValues('SERVER_ADDRESS'),

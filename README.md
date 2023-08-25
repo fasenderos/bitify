@@ -1,18 +1,17 @@
-> <b>WARNING</b>: This software is not ready yet, please don't use in production. There are a [lot of things to do](#to-do) and is under active development. APIs and input schemas are subject to change without notice. Technical support is unavailable at this time.
+> <b>WARNING</b>: This software is not ready yet, please don't use in production. There are a [lot of things to do](#to-do) and is under active development. APIs and table schemas are subject to change without notice. Technical support is unavailable at this time.
 
-<h3 align="center">
-:star: Star me on GitHub — it motivates me a lot!
-</h3>
-<h4 align="center">Bitify Trading Platform</h4>
-
-# Bitify
-
-Bitify is an open-source trading platform for building a Blockchain/FinTech cryptocurrency exchange.
+<h3 align="center">Bitify Trading Platform</h3>
+<h4 align="center">:star: Star me on GitHub — it motivates me a lot!</h4>
 
 ## Table of Contents
 
+- [About](#about)
 - [To-Do](#to-do)
 - [Contributing](#contributing)
+
+# About
+
+Bitify is an open-source trading platform for building a Blockchain/FinTech cryptocurrency exchange.
 
 ## To-Do
 
