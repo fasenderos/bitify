@@ -2,6 +2,7 @@
   "name": "bitify",
   "version": "0.0.1",
   "private": true,
+  "description": "Ultra-fast Open Source Trading Platform for NodeJS",
   "scripts": {
     "cleanall": "rm pnpm-lock.yaml && pnpm run clean",
     "clean": "rm -rf node_modules packages/*/node_modules",
@@ -15,12 +16,23 @@
     "workspace": "pnpm -r --workspace-concurrency=1"
   },
   "packageManager": "pnpm@8.6.10",
-  "engines" : {
-    "node" : ">=18"
+  "engines": {
+    "node": ">=18"
   },
   "devDependencies": {
     "@tsconfig/node-lts": "^18.12.3",
     "@tsconfig/strictest": "^2.0.1",
     "husky": "^8.0.0"
-  }
+  },
+  "keywords": [
+    "trading",
+    "cryptocurrency",
+    "exchange",
+    "trading-platform",
+    "matching-engine",
+    "bitify",
+    "blockchain",
+    "crypto-exchange-software",
+    "cryptocurrency-exchange-software"
+  ]
 }
