@@ -18,10 +18,12 @@ Bitify is an open-source trading platform for building a Blockchain/FinTech cryp
 If you want to speed up the Bitify release, please contribute to this project by implementing some of the following features:
 
 ### Must need
+
 - [ ] Test, Test and Test everything
 - [ ] Documentation
 
 ### Authentication Server
+
 - [x] User registration and login
 - [ ] Email verification
 - [ ] Forgot and reset password
@@ -32,14 +34,16 @@ If you want to speed up the Bitify release, please contribute to this project by
 - [ ] [KYC Verification](https://en.wikipedia.org/wiki/Know_your_customer)
 
 ### Repository
+
 - [ ] Run test/lint on PR
-- [ ] Update dependencies with dependabot or similar
-- [ ] Code checker like Snyk.io
+- [x] Update dependencies with dependabot or similar
+- [x] Code checker like CodeQL or similar
 - [ ] Code coverage like CircleCI
 - [ ] Publish release on NPM and Github (one version fits all)
 - [ ] Auto changelog (each package with its own)
 
 ### Macro Area
+
 - [ ] Wallet manager
 - [ ] Manage Order book
 - [ ] Integration with payment gateway
