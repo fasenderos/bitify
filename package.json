@@ -7,6 +7,7 @@
     "cleanall": "rm pnpm-lock.yaml && pnpm run clean",
     "clean": "rm -rf node_modules packages/*/node_modules",
     "format": "pnpm run workspace -- format",
+    "format:fix": "pnpm run workspace -- format:fix",
     "lint": "pnpm run workspace -- lint",
     "lint:fix": "pnpm run workspace -- lint:fix",
     "prepare": "husky install",
@@ -22,7 +23,8 @@
   "devDependencies": {
     "@tsconfig/node-lts": "^18.12.3",
     "@tsconfig/strictest": "^2.0.1",
-    "husky": "^8.0.0"
+    "husky": "^8.0.0",
+    "lint-staged": "^14.0.1"
   },
   "keywords": [
     "trading",
