@@ -1,12 +1,16 @@
-export const isObject = (obj: any): boolean => {
-  const type = typeof obj;
-  return type === 'function' || (type === 'object' && !!obj);
-};
+import { isPlainObject } from 'lodash';
+
 export const trim = (value: any, exclude?: string): any => {
   if (typeof value === 'string') {
     return value.trim();
   }
-  if (isObject(value)) {
+  if (Array.isArray(value)) {
+    value.forEach((element, index) => {
+      value[index] = trim(element);
+    });
+    return value;
+  }
+  if (isPlainObject(value)) {
     Object.keys(value).forEach((key) => {
       if (key !== exclude) value[key] = trim(value[key]);
     });

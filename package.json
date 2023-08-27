@@ -12,6 +12,7 @@
     "lint:fix": "pnpm run workspace -- lint:fix",
     "prepare": "husky install",
     "test": "pnpm run workspace -- test",
+    "test:dev": "pnpm run workspace -- test:dev",
     "start": "pnpm run workspace -- start",
     "start:dev": "pnpm run workspace -- start:dev",
     "workspace": "pnpm -r --workspace-concurrency=1"
