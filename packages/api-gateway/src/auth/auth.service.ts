@@ -1,4 +1,4 @@
-import { ForbiddenException, Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { UserService } from '../user/user.service';
 import { SessionService } from './session.service';
 import { TokenService } from './token.service';
@@ -68,13 +68,13 @@ export class AuthService {
   async verifyOTP(userId: string, otp: string) {
     const user = await this.user.getUserWithUnselected({ id: userId });
     if (!user || !user.otpSecret || !user.otp)
-      throw new ForbiddenException('Wrong OTP configuration');
+      throw new UnauthorizedException('Wrong OTP configuration');
 
     const userSecret = this.cipher.decrypt(user.otpSecret);
     const isValid = this.isOTPValid(otp, userSecret);
 
     if (!isValid)
-      throw new ForbiddenException(
+      throw new UnauthorizedException(
         'The provided one time password is not valid',
       );
   }
@@ -102,7 +102,7 @@ export class AuthService {
   async verify2FA(userId: string, dto: Verify2FADto): Promise<void> {
     const isValid = this.isOTPValid(dto.otp, dto.secret);
     if (!isValid)
-      throw new ForbiddenException(
+      throw new UnauthorizedException(
         'The provided one time password is not valid',
       );
 

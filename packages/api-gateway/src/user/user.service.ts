@@ -74,10 +74,6 @@ export class UserService {
     });
   }
 
-  async getUserByEmail(email: string): Promise<User | null> {
-    return await this.user.findOneBy({ email });
-  }
-
   async updateById(id: string, data: any): Promise<UpdateResult> {
     return this.user.update(id, data);
   }

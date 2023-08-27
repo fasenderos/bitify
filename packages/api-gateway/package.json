@@ -15,7 +15,7 @@
     "lint": "eslint",
     "lint:fix": "eslint --fix",
     "test": "c8 tap",
-    "test:dev": "tap --watch --coverage"
+    "test:dev": "tap --watch --coverage --no-check-coverage"
   },
   "author": "Andrea Fassina <andrea.fassina82@gmail.com>",
   "repository": {

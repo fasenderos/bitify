@@ -7,6 +7,7 @@ import {
   Get,
   UseGuards,
   UsePipes,
+  HttpCode,
 } from '@nestjs/common';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
@@ -35,6 +36,7 @@ export class AuthController {
 
   @Post('login')
   @UsePipes(new TrimPipe())
+  @HttpCode(200)
   login(
     @Body(ValidationPipe) dto: LoginDto,
   ): Promise<ILoginResponse | I2FAResponse> {
@@ -63,6 +65,7 @@ export class AuthController {
   @UseGuards(Jwt2FAGuard)
   @Post('otp')
   @UsePipes(new TrimPipe())
+  @HttpCode(200)
   async verifyOTP(
     @GetUser('id') userId: string,
     @Body(ValidationPipe) dto: VerifyOTPDto,
@@ -75,7 +78,10 @@ export class AuthController {
   @ApiBearerAuth()
   @UseGuards(JwtGuard)
   @Get('enable2fa')
-  enable2FA(@GetUser() user: User): any {
+  enable2FA(@GetUser() user: User): Promise<{
+    secret: string;
+    qrcode: string;
+  }> {
     return this.auth.enable2FA(user);
   }
 
@@ -84,6 +90,7 @@ export class AuthController {
   @UseGuards(JwtGuard)
   @Post('verify2fa')
   @UsePipes(new TrimPipe())
+  @HttpCode(200)
   verify2FA(
     @GetUser('id') userId: string,
     @Body(ValidationPipe) dto: Verify2FADto,
@@ -96,6 +103,7 @@ export class AuthController {
   @UseGuards(JwtGuard)
   @Post('disable2fa')
   @UsePipes(new TrimPipe())
+  @HttpCode(200)
   async disable2FA(
     @GetUser('id') userId: string,
     @Body(ValidationPipe) dto: VerifyOTPDto,
