@@ -8,6 +8,7 @@ import { ConfigService } from '@nestjs/config';
 import { Logger } from 'nestjs-pino';
 import { AppConfig } from '../typings/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { ValidationPipe } from '@nestjs/common';
 
 async function bootstrap(): Promise<void> {
   const app = await NestFactory.create<NestFastifyApplication>(
@@ -20,6 +21,15 @@ async function bootstrap(): Promise<void> {
 
   // Starts listening for shutdown hooks
   app.enableShutdownHooks();
+
+  // DTO Validation Global configuration
+  app.useGlobalPipes(
+    new ValidationPipe({
+      forbidNonWhitelisted: true,
+      stopAtFirstError: true,
+      whitelist: true,
+    }),
+  );
 
   // Get configService
   const configService: ConfigService = app.get(ConfigService);

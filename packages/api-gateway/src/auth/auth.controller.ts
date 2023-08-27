@@ -6,6 +6,7 @@ import {
   Headers,
   Get,
   UseGuards,
+  UsePipes,
 } from '@nestjs/common';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
@@ -18,6 +19,7 @@ import { Verify2FADto } from './dto/verify-2fa.dto';
 import { Jwt2FAGuard } from './guards/jwt-2fa.guard';
 import { VerifyOTPDto } from './dto/verify-otp.dto';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { TrimPipe } from '../common/pipes/trim.pipe';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -25,12 +27,14 @@ export class AuthController {
   constructor(private readonly auth: AuthService) {}
 
   @Post('register')
+  @UsePipes(new TrimPipe())
   register(@Body(ValidationPipe) dto: RegisterDto): Promise<void> {
     const { email, password } = dto;
     return this.auth.register(email, password);
   }
 
   @Post('login')
+  @UsePipes(new TrimPipe())
   login(
     @Body(ValidationPipe) dto: LoginDto,
   ): Promise<ILoginResponse | I2FAResponse> {
@@ -58,6 +62,7 @@ export class AuthController {
   @ApiBearerAuth()
   @UseGuards(Jwt2FAGuard)
   @Post('otp')
+  @UsePipes(new TrimPipe())
   async verifyOTP(
     @GetUser('id') userId: string,
     @Body(ValidationPipe) dto: VerifyOTPDto,
@@ -69,7 +74,7 @@ export class AuthController {
   // Controller that init the request to enable 2FA
   @ApiBearerAuth()
   @UseGuards(JwtGuard)
-  @Post('enable2fa')
+  @Get('enable2fa')
   enable2FA(@GetUser() user: User): any {
     return this.auth.enable2FA(user);
   }
@@ -78,6 +83,7 @@ export class AuthController {
   @ApiBearerAuth()
   @UseGuards(JwtGuard)
   @Post('verify2fa')
+  @UsePipes(new TrimPipe())
   verify2FA(
     @GetUser('id') userId: string,
     @Body(ValidationPipe) dto: Verify2FADto,
@@ -89,6 +95,7 @@ export class AuthController {
   @ApiBearerAuth()
   @UseGuards(JwtGuard)
   @Post('disable2fa')
+  @UsePipes(new TrimPipe())
   async disable2FA(
     @GetUser('id') userId: string,
     @Body(ValidationPipe) dto: VerifyOTPDto,

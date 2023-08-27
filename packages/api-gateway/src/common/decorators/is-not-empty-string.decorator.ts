@@ -18,7 +18,7 @@ export function IsNotEmptyString(validationOptions?: ValidationOptions) {
         validate: (value: any): boolean =>
           isString(value) && isNotEmpty(value.trim()),
         defaultMessage: (validationArguments?: ValidationArguments): string =>
-          `${validationArguments?.property} should not be an empty string`,
+          `${validationArguments?.property} must be a non empty string`,
       },
     });
   };
