@@ -7,7 +7,7 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { DatabaseError } from 'pg';
 import { compare, hash } from 'bcrypt';
-import { User } from './user.entity';
+import { User } from './entities/user.entity';
 import {
   FindOptionsWhere,
   InsertResult,

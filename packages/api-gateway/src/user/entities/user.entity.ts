@@ -4,33 +4,37 @@ import {
   DeleteDateColumn,
   Entity,
   PrimaryGeneratedColumn,
-  Unique,
   UpdateDateColumn,
 } from 'typeorm';
 
-@Entity()
-@Unique(['email'])
+@Entity({ name: 'users' })
 export class User {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
 
-  @Column()
+  @Column({ unique: true })
   email!: string;
-
-  @Column({ nullable: true })
-  firstName?: string;
-
-  @Column({ nullable: true })
-  lastName?: string;
 
   @Column({ select: false })
   passwordHash!: string;
 
+  @Column({ default: 'member' })
+  role!: string;
+
+  @Column({ default: 0 })
+  level!: number;
+
+  @Column({ default: 'pending' })
+  state!: string;
+
+  @Column({ default: null, type: 'uuid' })
+  referralId!: string;
+
   @Column({ default: false })
-  twoFactorEnabled!: string;
+  otp!: boolean;
 
   @Column({ nullable: true, select: false })
-  twoFactorSecret?: string;
+  otpSecret?: string;
 
   @CreateDateColumn()
   createdAt!: Date;
