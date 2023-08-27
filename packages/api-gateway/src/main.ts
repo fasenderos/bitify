@@ -7,6 +7,7 @@ import { AppModule } from './app.module';
 import { ConfigService } from '@nestjs/config';
 import { Logger } from 'nestjs-pino';
 import { AppConfig } from '../typings/common';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 async function bootstrap(): Promise<void> {
   const app = await NestFactory.create<NestFastifyApplication>(
@@ -28,6 +29,15 @@ async function bootstrap(): Promise<void> {
   const { name, version } = configService.get<AppConfig['app']>(
     'app',
   ) as AppConfig['app'];
+
+  const config = new DocumentBuilder()
+    .setTitle(`${name} documentations`)
+    .setDescription(`The ${name} API description`)
+    .setVersion(version)
+    .addBearerAuth()
+    .build();
+  const document = SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('docs', app, document);
 
   await app.listen(port, address);
   pinoLogger.log(`${name}@v${version} is running on: ${await app.getUrl()}`);

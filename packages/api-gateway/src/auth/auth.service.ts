@@ -2,7 +2,7 @@ import { ForbiddenException, Injectable } from '@nestjs/common';
 import { UserService } from '../user/user.service';
 import { SessionService } from './session.service';
 import { TokenService } from './token.service';
-import { User } from '../user/user.entity';
+import { User } from '../user/entities/user.entity';
 import { authenticator } from 'otplib';
 import { toDataURL } from 'qrcode';
 import { ConfigService } from '@nestjs/config';
@@ -41,7 +41,7 @@ export class AuthService {
     password: string,
   ): Promise<ILoginResponse | I2FAResponse> {
     const user = await this.user.validateUserPassword(email, password);
-    if (user.twoFactorEnabled && user.twoFactorSecret) {
+    if (user.otp && user.otpSecret) {
       const twoFactorToken = await this.token.generate2FAToken(user.id);
       return { twoFactorToken };
     }
@@ -67,10 +67,10 @@ export class AuthService {
 
   async verifyOTP(userId: string, otp: string) {
     const user = await this.user.getUserWithUnselected({ id: userId });
-    if (!user || !user.twoFactorSecret || !user.twoFactorEnabled)
+    if (!user || !user.otpSecret || !user.otp)
       throw new ForbiddenException('Wrong OTP configuration');
 
-    const userSecret = this.cipher.decrypt(user.twoFactorSecret);
+    const userSecret = this.cipher.decrypt(user.otpSecret);
     const isValid = this.isOTPValid(otp, userSecret);
 
     if (!isValid)
@@ -94,8 +94,8 @@ export class AuthService {
 
   async disable2FA(userId: string) {
     await this.user.updateById(userId, {
-      twoFactorEnabled: false,
-      twoFactorSecret: null,
+      otp: false,
+      otpSecret: null,
     });
   }
 
@@ -108,8 +108,8 @@ export class AuthService {
 
     // Save secret (encrypted) to db and enable 2FA
     await this.user.updateById(userId, {
-      twoFactorEnabled: true,
-      twoFactorSecret: this.cipher.encrypt(dto.secret),
+      otp: true,
+      otpSecret: this.cipher.encrypt(dto.secret),
     });
   }
 
