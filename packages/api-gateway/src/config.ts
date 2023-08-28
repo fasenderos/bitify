@@ -1,10 +1,20 @@
 import { name, version } from '../package.json';
 import { AppConfig } from '../typings/common';
 
-function ensureValues(key: string, throwOnMissing = true): string {
+function ensureValues(
+  key: string,
+  defaultValue: string,
+  throwOnMissing = true,
+): string {
   const value = process.env[key];
-  if (value === undefined && throwOnMissing) {
-    throw new Error(`config error - missing env.${key}`);
+  if (value === undefined) {
+    if (defaultValue) {
+      console.error(
+        `Config missing env.${key} - the default value '${defaultValue}' will be used`,
+      );
+      return defaultValue;
+    }
+    if (throwOnMissing) throw new Error(`Config missing env.${key}`);
   }
   return value as string;
 }
@@ -15,17 +25,7 @@ export enum TokenTypes {
   RESET_PASSWORD = 'reset_password',
 }
 
-export const COOKIES = {
-  PAYLOAD: `${name}_user`,
-  HEADER_SIGNATURE: `${name}_token`,
-  SESSION: `${name}_session`,
-};
-
 export default (): AppConfig => {
-  const encryptSecret = ensureValues('ENCRYPTION_KEY');
-  if (encryptSecret.length !== 32) {
-    throw new Error('ENCRYPTION_KEY must be a 32-length string');
-  }
   return {
     app: {
       name,
@@ -37,23 +37,29 @@ export default (): AppConfig => {
       expRefreshToken: '7d',
       expVerifyMail: '8m',
       expResetPassword: '8m',
-      secret2FAToken: ensureValues('JWT_SECRET_2FA_TOKEN'),
-      secretAccessToken: ensureValues('JWT_SECRET_ACCESS_TOKEN'),
-      secretRefreshToken: ensureValues('JWT_SECRET_REFRESH_TOKEN'),
+      secret2FAToken: ensureValues('JWT_SECRET_2FA_TOKEN', 'CHANGE-2FA-TOKEN'),
+      secretAccessToken: ensureValues(
+        'JWT_SECRET_ACCESS_TOKEN',
+        'CHANGE-ACCESS-TOKEN',
+      ),
+      secretRefreshToken: ensureValues(
+        'JWT_SECRET_REFRESH_TOKEN',
+        'CHANGE-REFRESH-TOKEN',
+      ),
     },
     db: {
-      host: ensureValues('POSTGRES_HOST'),
-      port: parseInt(ensureValues('POSTGRES_PORT'), 10),
-      username: ensureValues('POSTGRES_USERNAME'),
-      password: ensureValues('POSTGRES_PASSWORD'),
-      database: ensureValues('POSTGRES_DATABASE'),
+      host: ensureValues('POSTGRES_HOST', '127.0.0.1'),
+      port: parseInt(ensureValues('POSTGRES_PORT', '5432'), 10),
+      username: ensureValues('POSTGRES_USERNAME', 'postgres'),
+      password: ensureValues('POSTGRES_PASSWORD', 'postgres'),
+      database: ensureValues('POSTGRES_DATABASE', 'postgres'),
     },
     encryption: {
-      secret: encryptSecret,
+      secret: ensureValues('ENCRYPTION_KEY', 'CHANGE-ENCRYPTION-KEY'),
     },
     server: {
-      address: ensureValues('SERVER_ADDRESS'),
-      port: parseInt(ensureValues('SERVER_PORT'), 10),
+      address: ensureValues('SERVER_ADDRESS', '127.0.0.1'),
+      port: parseInt(ensureValues('SERVER_PORT', '3001'), 10),
     },
   };
 };

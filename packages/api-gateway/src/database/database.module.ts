@@ -19,8 +19,7 @@ import path from 'path';
           username,
           password,
           database,
-          // TODO
-          synchronize: true,
+          synchronize: process.env['NODE_ENV'] !== 'production',
           entities: [path.join(__dirname, '/../**/*.entity{.ts,.js}')],
         };
       },

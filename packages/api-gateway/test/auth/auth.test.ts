@@ -7,6 +7,8 @@ import {
 import { AppModule } from '../../src/app.module';
 import { HttpStatus } from '@nestjs/common';
 import { authenticator } from 'otplib';
+import { clearDatabase } from '../helper';
+import { DataSource } from 'typeorm';
 
 let app: NestFastifyApplication;
 
@@ -22,10 +24,15 @@ beforeEach(async () => {
 });
 
 afterEach(async () => {
+  const dataSource = app.get(DataSource);
+  await clearDatabase(dataSource);
   await app.close();
 });
 
 test('AuthController', async ({ equal }) => {
+  const dataSource = app.get(DataSource);
+  await clearDatabase(dataSource);
+
   const mockUser = {
     email: 'email@somesite.com',
     password: 'Test1234',
@@ -136,7 +143,7 @@ test('AuthController', async ({ equal }) => {
     body: { email: mockUser.email, password: mockUser.password },
   });
   payload = JSON.parse(login.payload);
-  const twoFactorToken = payload.twoFactorToken;
+  const { twoFactorToken } = payload;
 
   // OTP Login with wrong accessToken
   otp = authenticator.generate(secret);
