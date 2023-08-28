@@ -38,7 +38,7 @@ If you want to speed up the Bitify release, please contribute to this project by
 - [x] Run test/lint on PR
 - [x] Update dependencies with dependabot or similar
 - [x] Code checker like CodeQL or similar
-- [ ] Code coverage like CircleCI
+- [x] Code coverage like Codecov
 - [ ] Publish release on NPM and Github (one version fits all)
 - [ ] Auto changelog (each package with its own)
 
