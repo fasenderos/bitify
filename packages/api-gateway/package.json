@@ -14,7 +14,7 @@
     "start:prod": "node dist/main",
     "lint": "eslint",
     "lint:fix": "eslint --fix",
-    "test": "c8 tap",
+    "test": "tap",
     "test:dev": "tap --watch --coverage --no-check-coverage"
   },
   "author": "Andrea Fassina <andrea.fassina82@gmail.com>",
@@ -71,7 +71,6 @@
     "@types/timestring": "^6.0.2",
     "@typescript-eslint/eslint-plugin": "^6.4.1",
     "@typescript-eslint/parser": "^6.4.1",
-    "c8": "^8.0.0",
     "eslint": "^8.47.0",
     "eslint-config-prettier": "^9.0.0",
     "eslint-plugin-prettier": "^5.0.0",
