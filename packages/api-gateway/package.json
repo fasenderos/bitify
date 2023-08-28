@@ -1,6 +1,6 @@
 {
   "name": "@bitify/api-gateway",
-  "version": "0.0.1",
+  "version": "0.0.0",
   "description": "",
   "scripts": {
     "build": "nest build",
