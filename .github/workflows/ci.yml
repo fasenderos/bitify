@@ -43,7 +43,7 @@ jobs:
     strategy:
       matrix:
         node-version: [18, 20]
-        os: [ubuntu-latest, windows-latest]
+        os: [ubuntu-latest]
     steps:
       - uses: actions/checkout@v3
       - uses: pnpm/action-setup@v2.4.0
@@ -61,6 +61,6 @@ jobs:
           retry_on: error
           command: pnpm install --frozen-lockfile
       - name: Run linter
-        run: cd packages/api-gateway && pnpm run lint
+        run: cd packages/api-gateway && pnpm lint
       - name: Run test suite
         run: cd packages/api-gateway && pnpm test

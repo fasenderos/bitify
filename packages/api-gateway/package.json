@@ -14,8 +14,8 @@
     "start:prod": "node dist/main",
     "lint": "eslint",
     "lint:fix": "eslint --fix",
-    "test": "tap",
-    "test:dev": "tap --watch --coverage --no-check-coverage"
+    "test": "tap --ts",
+    "test:dev": "tap --ts --watch --coverage --no-check-coverage"
   },
   "author": "Andrea Fassina <andrea.fassina82@gmail.com>",
   "repository": {
@@ -83,12 +83,6 @@
     "typescript": "^5.1.3"
   },
   "tap": {
-    "coverage": false,
-    "node-arg": [
-      "--no-warnings",
-      "--loader",
-      "ts-node/esm"
-    ],
-    "ts": false
+    "coverage": false
   }
 }
