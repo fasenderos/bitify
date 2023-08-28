@@ -35,7 +35,7 @@ If you want to speed up the Bitify release, please contribute to this project by
 
 ### Repository
 
-- [ ] Run test/lint on PR
+- [x] Run test/lint on PR
 - [x] Update dependencies with dependabot or similar
 - [x] Code checker like CodeQL or similar
 - [ ] Code coverage like CircleCI

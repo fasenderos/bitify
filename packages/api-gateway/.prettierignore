@@ -1,3 +1,4 @@
 # Ignore artifacts
 .nyc_output
+coverage
 dist

@@ -1,0 +1,8 @@
+version: "3.3"
+services:
+  postgresql:
+    ports:
+      - "127.0.0.1:5432:5432"
+    image: "postgres:15-alpine"
+    environment:
+      - POSTGRES_PASSWORD=postgres
