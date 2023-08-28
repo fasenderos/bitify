@@ -51,8 +51,8 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
           cache: "pnpm"
-      - name: Start posgresql containers for testing
-        run: docker-compose up -d posgresql
+      - name: Start postgresql containers for testing
+        run: docker-compose up -d postgresql
       - name: Install dependencies
         uses: nick-fields/retry@v2.8.3
         with:
