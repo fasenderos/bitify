@@ -1,6 +1,4 @@
-export type EmptyObject = {
-  [K in any]: never;
-};
+export type EmptyObject = Record<string, never>;
 
 export interface AppConfig {
   app: {

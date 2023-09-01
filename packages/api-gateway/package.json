@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "description": "",
   "scripts": {
-    "build": "nest build",
+    "build": "pnpm clean && nest build",
     "clean": "rm -rf coverage dist .nyc_output",
     "format": "prettier --list-different .",
     "format:fix": "prettier --write .",
@@ -11,10 +11,10 @@
     "start:dev": "nest start --watch",
     "start:dev:db": "bash ./scripts/start-db.sh",
     "start:debug": "nest start --debug --watch",
-    "start:prod": "node dist/main",
+    "start:prod": "node dist/src/main",
     "lint": "eslint",
     "lint:fix": "eslint --fix",
-    "test": "tap --ts",
+    "test": "tap --ts --no-timeout --coverage | tap-xunit > test.xml",
     "test:dev": "tap --ts --watch"
   },
   "author": "Andrea Fassina <andrea.fassina82@gmail.com>",

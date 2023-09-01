@@ -40,6 +40,12 @@ jobs:
           timeout_minutes: 15
           retry_on: error
           command: pnpm install
+      - name: GIT commit and push all changed files
+        run: |
+          git config --global user.name "fasenderos"
+          git config --global user.email "fasenderos@gmail.com"
+          git commit -a -m "chore: release version ${{ inputs.version }}"
+          git push origin HEAD:main
       - name: Create and publish version
         uses: changesets/action@v1
         with:
