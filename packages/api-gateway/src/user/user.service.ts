@@ -16,6 +16,7 @@ import {
   UpdateResult,
 } from 'typeorm';
 import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity';
+import { UserState } from '../common/constants';
 
 interface IUserCreate {
   email: string;
@@ -71,7 +72,18 @@ export class UserService {
         'You have entered an invalid email or password',
       );
 
+    await this.validateUserAuth(user);
     return user;
+  }
+
+  async validateUserAuth(user: User) {
+    if (user.level === 0 || user.state === UserState.PENDING)
+      throw new UnauthorizedException('Your account is not active');
+
+    if (user.state === UserState.BANNED)
+      throw new UnauthorizedException(
+        'Sorry, your account is banned. Contact us for more information.',
+      );
   }
 
   getUserWithUnselected(where: FindOptionsWhere<User>) {
