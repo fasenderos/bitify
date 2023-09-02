@@ -1,6 +1,6 @@
 import { Column, Entity } from 'typeorm';
 import { BaseEntity } from '../../base/base.entity';
-import { UserStatus } from '../../common/constants';
+import { UserState } from '../../common/constants';
 
 @Entity({ name: 'users' })
 export class User extends BaseEntity {
@@ -23,7 +23,7 @@ export class User extends BaseEntity {
   level!: number;
 
   /** active, pending, banned */
-  @Column({ default: UserStatus.PENDING })
+  @Column({ default: UserState.PENDING })
   state!: string;
 
   @Column({ nullable: true, type: 'uuid' })

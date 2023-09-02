@@ -1,4 +1,8 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  Injectable,
+  UnauthorizedException,
+  UnprocessableEntityException,
+} from '@nestjs/common';
 import { UserService } from '../user/user.service';
 import { SessionService } from './session.service';
 import { TokenService } from './token.service';
@@ -9,11 +13,16 @@ import { ConfigService } from '@nestjs/config';
 import { Verify2FADto } from './dto/verify-2fa.dto';
 import { CipherService } from '../common/modules/cipher/cipher.service';
 import { randomInt } from 'crypto';
-import { I2FAResponse, I2FaEnabled, ILoginResponse } from './interfaces';
+import {
+  I2FAResponse,
+  I2FaEnabled,
+  IEnable2FAResponse,
+  ILoginResponse,
+} from './interfaces';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { EmailConfirmation } from '../events';
 import timestring from 'timestring';
-import { UserStatus } from '../common/constants';
+import { UserState } from '../common/constants';
 
 @Injectable()
 export class AuthService {
@@ -53,7 +62,7 @@ export class AuthService {
     return this.finalizeLogin(user.id);
   }
 
-  async finalizeLogin(userId: string) {
+  async finalizeLogin(userId: string): Promise<ILoginResponse> {
     const now = Date.now();
     const session = await this.session.createSession(userId, now);
     const { accessToken, refreshToken } = await this.createTokens(
@@ -81,7 +90,7 @@ export class AuthService {
     return { accessToken, refreshToken };
   }
 
-  async verifyOTP(userId: string, otp: string) {
+  async verifyOTP(userId: string, otp: string): Promise<void> {
     const user = await this.user.getUserWithUnselected({ id: userId });
     if (!user || !user.otpSecret || !user.otp || !user.otpCodes)
       throw new UnauthorizedException('Wrong OTP configuration');
@@ -99,7 +108,7 @@ export class AuthService {
       );
   }
 
-  async enable2FA(user: User) {
+  async enable2FA(user: User): Promise<IEnable2FAResponse> {
     // Generate secret for this user
     const secret = authenticator.generateSecret();
     // Generate otpauth uri
@@ -112,7 +121,7 @@ export class AuthService {
     };
   }
 
-  async disable2FA(userId: string) {
+  async disable2FA(userId: string): Promise<void> {
     await this.user.updateById(userId, {
       otp: false,
       otpSecret: null,
@@ -138,7 +147,7 @@ export class AuthService {
     return { otpCodes };
   }
 
-  async confirmEmail(email: string, code: number) {
+  async confirmEmail(email: string, code: number): Promise<void> {
     const user = await this.user.getUserWithUnselected({ email, level: 0 });
 
     if (!user || user.otpCodes?.includes(code))
@@ -153,9 +162,35 @@ export class AuthService {
 
     await this.user.updateById(user.id, {
       level: 1,
-      state: UserStatus.ACTIVE,
+      state: UserState.ACTIVE,
       otpCodes: null,
     });
+  }
+
+  async resendConfirmEmail(email: string): Promise<void> {
+    const user = await this.user.findByEmail(email);
+    if (!user) return;
+
+    if (user.level > 0)
+      throw new UnprocessableEntityException(
+        'Your account has already been activated.',
+      );
+
+    if (user.state === UserState.BANNED)
+      throw new UnprocessableEntityException(
+        'Sorry, your account is banned. Contact us for more information.',
+      );
+
+    // Wait 5 minutes before request new email varification code
+    if ((Date.now() - user.updatedAt.getTime()) / 60000 < 5) {
+      throw new UnprocessableEntityException(
+        'An email has already been sent. Wait 5 minutes before requesting new one.',
+      );
+    }
+
+    const code = this.createPinCode();
+    await this.user.updateById(user.id, { otpCodes: [code] });
+    this.event.emit(EmailConfirmation, { email, code });
   }
 
   private isOTPValid(otp: string, secret: string): boolean {

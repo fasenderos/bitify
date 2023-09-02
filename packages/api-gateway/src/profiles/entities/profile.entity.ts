@@ -6,27 +6,27 @@ export class Profile extends BaseEntity {
   @Column({ type: 'uuid' })
   userId!: string;
 
-  @Column({ default: null })
-  firstName!: string;
+  @Column({ nullable: true })
+  firstName!: string | null;
 
-  @Column({ default: null })
-  lastName!: string;
+  @Column({ nullable: true })
+  lastName!: string | null;
 
-  @Column({ default: null })
-  dob!: Date;
+  @Column({ nullable: true })
+  dob!: Date | null;
 
-  @Column({ default: null })
-  address!: string;
+  @Column({ nullable: true })
+  address!: string | null;
 
-  @Column({ default: null })
-  postcode!: string;
+  @Column({ nullable: true })
+  postcode!: string | null;
 
-  @Column({ default: null })
-  city!: string;
+  @Column({ nullable: true })
+  city!: string | null;
 
-  @Column({ default: null })
-  country!: string;
+  @Column({ nullable: true })
+  country!: string | null;
 
-  @Column({ type: 'jsonb', default: null })
-  metadata!: string;
+  @Column({ type: 'jsonb', nullable: true })
+  metadata!: string | null;
 }

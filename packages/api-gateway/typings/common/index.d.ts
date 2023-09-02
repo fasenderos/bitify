@@ -22,6 +22,10 @@ export interface AppConfig {
     password: string;
     database: string;
   };
+  email: {
+    transport: string;
+    from: string;
+  };
   encryption: {
     secret: string;
   };

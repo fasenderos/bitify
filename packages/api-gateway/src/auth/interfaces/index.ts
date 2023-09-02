@@ -10,3 +10,8 @@ export interface ILoginResponse {
 export interface I2FaEnabled {
   otpCodes: number[];
 }
+
+export interface IEnable2FAResponse {
+  secret: string;
+  qrcode: string;
+}

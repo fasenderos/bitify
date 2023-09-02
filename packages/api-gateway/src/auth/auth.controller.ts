@@ -21,8 +21,16 @@ import { Jwt2FAGuard } from './guards/jwt-2fa.guard';
 import { VerifyOTPDto } from './dto/verify-otp.dto';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { TrimPipe } from '../common/pipes/trim.pipe';
-import { I2FAResponse, I2FaEnabled, ILoginResponse } from './interfaces';
-import { ConfirmEmailDto } from './dto/confirm-email.dto';
+import {
+  I2FAResponse,
+  I2FaEnabled,
+  IEnable2FAResponse,
+  ILoginResponse,
+} from './interfaces';
+import {
+  ConfirmEmailDto,
+  ResendConfirmEmailDto,
+} from './dto/confirm-email.dto';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -82,14 +90,18 @@ export class AuthController {
     return this.auth.confirmEmail(email, code);
   }
 
+  @Get('resend-confirm-email')
+  public async resendConfirmEmail(
+    @Body(ValidationPipe) dto: ResendConfirmEmailDto,
+  ): Promise<void> {
+    return await this.auth.resendConfirmEmail(dto.email);
+  }
+
   // Controller that init the request to enable 2FA
   @ApiBearerAuth()
   @UseGuards(JwtGuard)
   @Get('enable2fa')
-  enable2FA(@GetUser() user: User): Promise<{
-    secret: string;
-    qrcode: string;
-  }> {
+  enable2FA(@GetUser() user: User): Promise<IEnable2FAResponse> {
     return this.auth.enable2FA(user);
   }
 

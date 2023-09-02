@@ -34,6 +34,10 @@ export class UserService {
     return this.user.findOneBy({ id: userId });
   }
 
+  public findByEmail(email: string) {
+    return this.user.findOneBy({ email });
+  }
+
   public async createUser({
     email,
     password,
