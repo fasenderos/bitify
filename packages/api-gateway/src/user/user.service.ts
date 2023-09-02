@@ -15,10 +15,12 @@ import {
   Repository,
   UpdateResult,
 } from 'typeorm';
+import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity';
 
 interface IUserCreate {
   email: string;
   password: string;
+  otpCodes: number[];
 }
 
 @Injectable()
@@ -35,10 +37,11 @@ export class UserService {
   public async createUser({
     email,
     password,
+    otpCodes,
   }: IUserCreate): Promise<InsertResult> {
     const passwordHash = await hash(password, 10);
     try {
-      return await this.user.insert({ email, passwordHash });
+      return await this.user.insert({ email, passwordHash, otpCodes });
     } catch (error: any) {
       if (error instanceof QueryFailedError) {
         const err = error.driverError as DatabaseError;
@@ -74,7 +77,10 @@ export class UserService {
     });
   }
 
-  async updateById(id: string, data: any): Promise<UpdateResult> {
+  async updateById(
+    id: string,
+    data: QueryDeepPartialEntity<User>,
+  ): Promise<UpdateResult> {
     return this.user.update(id, data);
   }
 

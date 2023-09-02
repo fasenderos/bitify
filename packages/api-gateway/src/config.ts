@@ -3,7 +3,7 @@ import { AppConfig } from '../typings/common';
 
 function ensureValues(
   key: string,
-  defaultValue: string,
+  defaultValue?: string,
   throwOnMissing = true,
 ): string {
   const value = process.env[key];
@@ -53,6 +53,10 @@ export default (): AppConfig => {
       username: ensureValues('POSTGRES_USERNAME', 'postgres'),
       password: ensureValues('POSTGRES_PASSWORD', 'postgres'),
       database: ensureValues('POSTGRES_DATABASE', 'postgres'),
+    },
+    email: {
+      transport: ensureValues('EMAIL_TRANSPORT', undefined, false),
+      from: ensureValues('EMAIL_FROM', undefined),
     },
     encryption: {
       secret: ensureValues('ENCRYPTION_KEY', 'CHANGE-ENCRYPTION-KEY'),

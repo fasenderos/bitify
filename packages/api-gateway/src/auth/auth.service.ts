@@ -8,19 +8,17 @@ import { toDataURL } from 'qrcode';
 import { ConfigService } from '@nestjs/config';
 import { Verify2FADto } from './dto/verify-2fa.dto';
 import { CipherService } from '../common/modules/cipher/cipher.service';
-
-export interface I2FAResponse {
-  twoFactorToken: string;
-}
-
-export interface ILoginResponse {
-  accessToken: string;
-  refreshToken: string;
-}
+import { randomInt } from 'crypto';
+import { I2FAResponse, I2FaEnabled, ILoginResponse } from './interfaces';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import { EmailConfirmation } from '../events';
+import timestring from 'timestring';
+import { UserStatus } from '../common/constants';
 
 @Injectable()
 export class AuthService {
-  APP_NAME: string;
+  appName: string;
+  expVerifyMail: number;
 
   constructor(
     private readonly session: SessionService,
@@ -28,12 +26,19 @@ export class AuthService {
     private readonly user: UserService,
     private readonly cipher: CipherService,
     private readonly config: ConfigService,
+    private readonly event: EventEmitter2,
   ) {
-    this.APP_NAME = this.config.get<string>('app.name') as string;
+    this.appName = this.config.get<string>('app.name') as string;
+    this.expVerifyMail = timestring(
+      this.config.get<string>('auth.expVerifyMail') as string,
+      'ms',
+    );
   }
 
   async register(email: string, password: string): Promise<void> {
-    await this.user.createUser({ email, password });
+    const code = this.createPinCode();
+    await this.user.createUser({ email, password, otpCodes: [code] });
+    this.event.emit(EmailConfirmation, { email, code });
   }
 
   async login(
@@ -46,6 +51,17 @@ export class AuthService {
       return { twoFactorToken };
     }
     return this.finalizeLogin(user.id);
+  }
+
+  async finalizeLogin(userId: string) {
+    const now = Date.now();
+    const session = await this.session.createSession(userId, now);
+    const { accessToken, refreshToken } = await this.createTokens(
+      userId,
+      session.id,
+      now,
+    );
+    return { accessToken, refreshToken };
   }
 
   async logout(auth: string): Promise<void> {
@@ -67,8 +83,12 @@ export class AuthService {
 
   async verifyOTP(userId: string, otp: string) {
     const user = await this.user.getUserWithUnselected({ id: userId });
-    if (!user || !user.otpSecret || !user.otp)
+    if (!user || !user.otpSecret || !user.otp || !user.otpCodes)
       throw new UnauthorizedException('Wrong OTP configuration');
+
+    // Check if one of the OTP backUp code has been used
+    // TODO if so we have to remove the used one and/or recreate one/ten new OTP Code??
+    if (user.otpCodes.includes(parseInt(otp))) return;
 
     const userSecret = this.cipher.decrypt(user.otpSecret);
     const isValid = this.isOTPValid(otp, userSecret);
@@ -83,7 +103,7 @@ export class AuthService {
     // Generate secret for this user
     const secret = authenticator.generateSecret();
     // Generate otpauth uri
-    const otpauth = authenticator.keyuri(user.email, this.APP_NAME, secret);
+    const otpauth = authenticator.keyuri(user.email, this.appName, secret);
     // Create QR Code from otpauth
     const qrcode = await toDataURL(otpauth);
     return {
@@ -99,29 +119,43 @@ export class AuthService {
     });
   }
 
-  async verify2FA(userId: string, dto: Verify2FADto): Promise<void> {
+  async verify2FA(userId: string, dto: Verify2FADto): Promise<I2FaEnabled> {
     const isValid = this.isOTPValid(dto.otp, dto.secret);
     if (!isValid)
       throw new UnauthorizedException(
         'The provided one time password is not valid',
       );
 
+    // Fixed OTP Code that can be used to bypass the OTP
+    const otpCodes = new Array(10).map(this.createPinCode);
+
     // Save secret (encrypted) to db and enable 2FA
     await this.user.updateById(userId, {
       otp: true,
       otpSecret: this.cipher.encrypt(dto.secret),
+      otpCodes,
     });
+    return { otpCodes };
   }
 
-  async finalizeLogin(userId: string) {
-    const now = Date.now();
-    const session = await this.session.createSession(userId, now);
-    const { accessToken, refreshToken } = await this.createTokens(
-      userId,
-      session.id,
-      now,
-    );
-    return { accessToken, refreshToken };
+  async confirmEmail(email: string, code: number) {
+    const user = await this.user.getUserWithUnselected({ email, level: 0 });
+
+    if (!user || user.otpCodes?.includes(code))
+      throw new UnauthorizedException(
+        'You have entered an invalid verification code',
+      );
+
+    const codeExpired =
+      Date.now() - user.updatedAt.getTime() > this.expVerifyMail;
+    if (codeExpired)
+      throw new UnauthorizedException('Your verification code is expired');
+
+    await this.user.updateById(user.id, {
+      level: 1,
+      state: UserStatus.ACTIVE,
+      otpCodes: null,
+    });
   }
 
   private isOTPValid(otp: string, secret: string): boolean {
@@ -141,5 +175,9 @@ export class AuthService {
       this.token.generateRefreshToken(userId, sessionId, now),
     ]);
     return { accessToken: tokens[0], refreshToken: tokens[1] };
+  }
+
+  private createPinCode(): number {
+    return randomInt(100000, 999999);
   }
 }

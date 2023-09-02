@@ -11,7 +11,7 @@ import {
 } from '@nestjs/common';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
-import { AuthService, I2FAResponse, ILoginResponse } from './auth.service';
+import { AuthService } from './auth.service';
 import { JwtGuard } from './guards/jwt.guard';
 import { JwtRefreshGuard } from './guards/jwt-refresh.guard';
 import { GetUser } from '../common/decorators/get-user.decorator';
@@ -21,6 +21,8 @@ import { Jwt2FAGuard } from './guards/jwt-2fa.guard';
 import { VerifyOTPDto } from './dto/verify-otp.dto';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { TrimPipe } from '../common/pipes/trim.pipe';
+import { I2FAResponse, I2FaEnabled, ILoginResponse } from './interfaces';
+import { ConfirmEmailDto } from './dto/confirm-email.dto';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -74,6 +76,12 @@ export class AuthController {
     return this.auth.finalizeLogin(userId);
   }
 
+  @Post('confirm-email')
+  confirmEmail(@Body(ValidationPipe) dto: ConfirmEmailDto) {
+    const { email, code } = dto;
+    return this.auth.confirmEmail(email, code);
+  }
+
   // Controller that init the request to enable 2FA
   @ApiBearerAuth()
   @UseGuards(JwtGuard)
@@ -94,7 +102,7 @@ export class AuthController {
   verify2FA(
     @GetUser('id') userId: string,
     @Body(ValidationPipe) dto: Verify2FADto,
-  ): Promise<void> {
+  ): Promise<I2FaEnabled> {
     return this.auth.verify2FA(userId, dto);
   }
 
