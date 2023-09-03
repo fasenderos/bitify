@@ -37,6 +37,7 @@ export default (): AppConfig => {
       expRefreshToken: '7d',
       expVerifyMail: '8m',
       expResetPassword: '8m',
+      recaptchaSecret: ensureValues('RECAPTCHA_PRIVATE_KEY', undefined),
       secret2FAToken: ensureValues('JWT_SECRET_2FA_TOKEN', 'CHANGE-2FA-TOKEN'),
       secretAccessToken: ensureValues(
         'JWT_SECRET_ACCESS_TOKEN',

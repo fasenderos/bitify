@@ -11,6 +11,7 @@ export interface AppConfig {
     expRefreshToken: string;
     expVerifyMail: string;
     expResetPassword: string;
+    recaptchaSecret: string;
     secret2FAToken: string;
     secretAccessToken: string;
     secretRefreshToken: string;

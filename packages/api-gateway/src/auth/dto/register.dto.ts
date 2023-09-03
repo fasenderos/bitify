@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsStrongPassword, MaxLength } from 'class-validator';
+import { IsOptional, IsStrongPassword, MaxLength } from 'class-validator';
 import { IsNotEmptyString } from '../../common/decorators/is-not-empty-string.decorator';
 import { EmailDto } from '../../common/dto';
 
@@ -28,4 +28,9 @@ export class RegisterDto extends EmailDto {
   })
   @IsNotEmptyString()
   readonly password!: string;
+
+  @ApiProperty({ description: 'Google reCAPTCHA Site Key' })
+  @IsNotEmptyString()
+  @IsOptional()
+  readonly recaptchaToken?: string;
 }

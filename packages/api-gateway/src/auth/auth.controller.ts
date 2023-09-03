@@ -9,6 +9,7 @@ import {
   UsePipes,
   HttpCode,
 } from '@nestjs/common';
+import { RealIP } from 'nestjs-real-ip';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { AuthService } from './auth.service';
@@ -41,9 +42,12 @@ export class AuthController {
 
   @Post('register')
   @UsePipes(new TrimPipe())
-  register(@Body(ValidationPipe) dto: RegisterDto): Promise<void> {
-    const { email, password } = dto;
-    return this.auth.register(email, password);
+  register(
+    @Body(ValidationPipe) dto: RegisterDto,
+    @RealIP() userIP: string,
+  ): Promise<void> {
+    const { email, password, recaptchaToken } = dto;
+    return this.auth.register(email, password, userIP, recaptchaToken);
   }
 
   @Post('login')
@@ -51,9 +55,10 @@ export class AuthController {
   @HttpCode(200)
   login(
     @Body(ValidationPipe) dto: LoginDto,
+    @RealIP() userIP: string,
   ): Promise<ILoginResponse | I2FAResponse> {
-    const { email, password } = dto;
-    return this.auth.login(email, password);
+    const { email, password, recaptchaToken } = dto;
+    return this.auth.login(email, password, userIP, recaptchaToken);
   }
 
   @ApiBearerAuth()

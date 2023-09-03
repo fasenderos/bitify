@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Injectable,
   UnauthorizedException,
   UnprocessableEntityException,
@@ -34,6 +35,7 @@ import { hash } from 'bcrypt';
 import { BaseTransaction } from '../base/base.transaction';
 import { DataSource, EntityManager } from 'typeorm';
 import { RecoveryToken } from '../recovery-token/recovery-token.entity';
+import { request } from 'undici';
 
 interface ResetPasswordTransactionInput {
   userId: string;
@@ -84,6 +86,7 @@ export class AuthService {
   appName: string;
   expVerifyMail: number;
   expResetPassword: number;
+  recaptchaSecret: string;
 
   constructor(
     private readonly resetPasswordTransaction: ResetPasswordTransaction,
@@ -104,9 +107,20 @@ export class AuthService {
       this.config.get<string>('auth.expResetPassword') as string,
       'ms',
     );
+    this.recaptchaSecret = this.config.get<string>(
+      'auth.recaptchaSecret',
+    ) as string;
   }
 
-  async register(email: string, password: string): Promise<void> {
+  async register(
+    email: string,
+    password: string,
+    userIP: string,
+    recaptchaToken?: string,
+  ): Promise<void> {
+    if (this.recaptchaSecret)
+      await this.validateCaptcha(userIP, recaptchaToken);
+
     const code = this.createPinCode();
     await this.user.createUser({ email, password, otpCodes: [code] });
     const payload: EmailConfirmationDto = { email, code };
@@ -116,7 +130,12 @@ export class AuthService {
   async login(
     email: string,
     password: string,
+    userIP: string,
+    recaptchaToken?: string,
   ): Promise<ILoginResponse | I2FAResponse> {
+    if (this.recaptchaSecret)
+      await this.validateCaptcha(userIP, recaptchaToken);
+
     const user = await this.user.validateUserPassword(email, password);
     if (user.otp && user.otpSecret) {
       const twoFactorToken = await this.token.generate2FAToken(user.id);
@@ -297,6 +316,28 @@ export class AuthService {
     const code = this.createPinCode();
     await this.user.updateById(user.id, { otpCodes: [code] });
     this.event.emit(EmailConfirmation, { email, code });
+  }
+
+  private async validateCaptcha(ip: string, token?: string): Promise<void> {
+    // If missing public site token
+    if (!token)
+      throw new BadRequestException('Missing Google reCAPTCHA Site key.');
+
+    const { body } = await request(
+      `https://www.google.com/recaptcha/api/siteverify?secret=${this.recaptchaSecret}&response=${token}&remoteip=${ip}`,
+    );
+    // https://developers.google.com/recaptcha/docs/verify
+    const response = (await body.json()) as {
+      success: boolean;
+      challenge_ts: number; // timestamp of the challenge load (ISO format yyyy-MM-dd'T'HH:mm:ssZZ)
+      hostname: string; // the hostname of the site where the reCAPTCHA was solved
+      'error-codes'?: string[]; // optional
+    };
+
+    if (!response.success)
+      throw new UnprocessableEntityException(
+        'Captcha verification failed, please try again.',
+      );
   }
 
   private isOTPValid(otp: string, secret: string): boolean {

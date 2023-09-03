@@ -29,7 +29,7 @@ If you want to speed up the Bitify release, please contribute to this project by
 - [x] Forgot and reset password
 - [x] Two Factor Authentication
 - [x] OTP Code Backup
-- [ ] Captcha
+- [x] Captcha
 - [ ] Role-Base or Attribute Base ACL
 - [ ] API Keys with permissions and IP restriction
 - [ ] [KYC Verification](https://en.wikipedia.org/wiki/Know_your_customer)
