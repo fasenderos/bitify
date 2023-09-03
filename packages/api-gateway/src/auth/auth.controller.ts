@@ -31,6 +31,8 @@ import {
   ConfirmEmailDto,
   ResendConfirmEmailDto,
 } from './dto/confirm-email.dto';
+import { ForgotPasswordDto } from './dto/forgot-password.dto';
+import { ResetPasswordDto } from './dto/reset-password.dto';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -84,13 +86,28 @@ export class AuthController {
     return this.auth.finalizeLogin(userId);
   }
 
-  @Post('confirm-email')
-  confirmEmail(@Body(ValidationPipe) dto: ConfirmEmailDto) {
-    const { email, code } = dto;
-    return this.auth.confirmEmail(email, code);
+  @Post('forgot-password')
+  @HttpCode(200)
+  forgotPassword(@Body(ValidationPipe) dto: ForgotPasswordDto): Promise<void> {
+    return this.auth.forgotPassword(dto.email);
   }
 
-  @Get('resend-confirm-email')
+  @Post('reset-password')
+  @HttpCode(200)
+  resetPassword(@Body(ValidationPipe) dto: ResetPasswordDto): Promise<void> {
+    const { password, token } = dto;
+    return this.auth.resetPassword(password, token);
+  }
+
+  @Post('confirm-email')
+  @HttpCode(200)
+  confirmEmail(@Body(ValidationPipe) dto: ConfirmEmailDto) {
+    const { email, code } = dto;
+    return this.auth.confirmEmail(email, parseInt(code));
+  }
+
+  @Post('resend-confirm-email')
+  @HttpCode(200)
   public async resendConfirmEmail(
     @Body(ValidationPipe) dto: ResendConfirmEmailDto,
   ): Promise<void> {

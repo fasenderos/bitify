@@ -61,6 +61,9 @@ export default (): AppConfig => {
     encryption: {
       secret: ensureValues('ENCRYPTION_KEY', 'CHANGE-ENCRYPTION-KEY'),
     },
+    frontend: {
+      baseUrl: ensureValues('FRONTEND_BASE_URL', undefined, true),
+    },
     server: {
       address: ensureValues('SERVER_ADDRESS', '127.0.0.1'),
       port: parseInt(ensureValues('SERVER_PORT', '3001'), 10),

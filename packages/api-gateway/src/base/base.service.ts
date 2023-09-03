@@ -1,19 +1,35 @@
-import { BaseEntity, FindManyOptions, Repository, UpdateResult } from 'typeorm';
+import {
+  DeepPartial,
+  FindManyOptions,
+  FindOneOptions,
+  Repository,
+  UpdateResult,
+} from 'typeorm';
+import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity';
+import { BaseEntity } from './base.entity';
 
-export abstract class BaseService<T extends BaseEntity> {
-  constructor(private readonly repo: Repository<T>) {}
+export abstract class BaseService<Entity extends BaseEntity> {
+  constructor(private readonly repo: Repository<Entity>) {}
 
-  findAll(opts?: FindManyOptions<T>): Promise<T[]> {
-    return this.repo.find(opts);
+  create(data: DeepPartial<Entity>): Promise<Entity> {
+    return this.repo.save(data);
   }
 
-  findById(id: string): Promise<T | null> {
+  findAll(where?: FindManyOptions<Entity>): Promise<Entity[]> {
+    return this.repo.find(where);
+  }
+
+  findOne(where: FindOneOptions<Entity>): Promise<Entity | null> {
+    return this.repo.findOne(where);
+  }
+
+  findById(id: string): Promise<Entity | null> {
     // @ts-expect-error don't know why ts raise err: Argument of type '{ id: string; }' is not assignable to parameter of type 'FindOptionsWhere<T> | FindOptionsWhere<T>[]'
-    return this.repo.findOneBy({ id });
+    return this.findOne({ where: { id } });
   }
 
-  updateById(id: string, data: any): Promise<UpdateResult> {
-    return this.repo.update(id, data);
+  updateById(id: string, data: Entity): Promise<UpdateResult> {
+    return this.repo.update(id, data as QueryDeepPartialEntity<Entity>);
   }
 
   async deleteById(id: string, soft = true): Promise<void> {

@@ -8,6 +8,7 @@ import { UserModule } from './user/user.module';
 import { TerminusModule } from '@nestjs/terminus';
 import { DBModule } from './database/database.module';
 import { AuthModule } from './auth/auth.module';
+import { EventEmitterModule } from '@nestjs/event-emitter';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { AuthModule } from './auth/auth.module';
       load: [config],
       cache: true,
     }),
+    EventEmitterModule.forRoot(),
     DBModule,
     LoggerModule.forRoot({
       pinoHttp: {

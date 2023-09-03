@@ -29,6 +29,9 @@ export interface AppConfig {
   encryption: {
     secret: string;
   };
+  frontend: {
+    baseUrl: string;
+  };
   server: {
     address: string;
     port: number;

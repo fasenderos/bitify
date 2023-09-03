@@ -20,16 +20,74 @@ import {
   ILoginResponse,
 } from './interfaces';
 import { EventEmitter2 } from '@nestjs/event-emitter';
-import { EmailConfirmation } from '../events';
+import {
+  EmailConfirmation,
+  EmailConfirmationDto,
+  EmailResetPassword,
+  EmailResetPasswordDto,
+} from '../events';
 import timestring from 'timestring';
 import { UserState } from '../common/constants';
+import { RecoveryTokenService } from '../recovery-token/recovery-token.service';
+import { createRandomString, isExpired } from '../common/utils';
+import { hash } from 'bcrypt';
+import { BaseTransaction } from '../base/base.transaction';
+import { DataSource, EntityManager } from 'typeorm';
+import { RecoveryToken } from '../recovery-token/recovery-token.entity';
+
+interface ResetPasswordTransactionInput {
+  userId: string;
+  password: string;
+  hashedToken: string;
+}
+
+@Injectable()
+export class ResetPasswordTransaction extends BaseTransaction<
+  ResetPasswordTransactionInput,
+  void
+> {
+  constructor(connection: DataSource) {
+    super(connection);
+  }
+
+  // Run reset password in transaction to prevent race conditions.
+  protected async execute(
+    data: ResetPasswordTransactionInput,
+    manager: EntityManager,
+  ): Promise<any> {
+    const { userId, password, hashedToken } = data;
+    // Get all user recovery tokens from DB
+    const allUsertokens = await manager.find(RecoveryToken, {
+      where: { userId },
+    });
+    const token = allUsertokens.find((x) => x.token === hashedToken);
+    if (!token)
+      // The token was redeemed by another transaction
+      throw new UnprocessableEntityException('Invalid password reset token');
+
+    // Delete all tokens belonging to this user to prevent duplicate use
+    await manager.delete(RecoveryToken, { userId });
+    // Check if the current token has expired or not
+    if (token.expiresAt.getTime() < Date.now())
+      throw new UnprocessableEntityException(
+        'Your password reset oken has expired. Please try again',
+      );
+
+    // All checks have been completed. We can change the user’s password
+    const passwordHash = await hash(password, 10);
+    await manager.update(User, { id: userId }, { passwordHash });
+  }
+}
 
 @Injectable()
 export class AuthService {
   appName: string;
   expVerifyMail: number;
+  expResetPassword: number;
 
   constructor(
+    private readonly resetPasswordTransaction: ResetPasswordTransaction,
+    private readonly recoveryToken: RecoveryTokenService,
     private readonly session: SessionService,
     private readonly token: TokenService,
     private readonly user: UserService,
@@ -42,12 +100,17 @@ export class AuthService {
       this.config.get<string>('auth.expVerifyMail') as string,
       'ms',
     );
+    this.expResetPassword = timestring(
+      this.config.get<string>('auth.expResetPassword') as string,
+      'ms',
+    );
   }
 
   async register(email: string, password: string): Promise<void> {
     const code = this.createPinCode();
     await this.user.createUser({ email, password, otpCodes: [code] });
-    this.event.emit(EmailConfirmation, { email, code });
+    const payload: EmailConfirmationDto = { email, code };
+    this.event.emit(EmailConfirmation, payload);
   }
 
   async login(
@@ -147,17 +210,60 @@ export class AuthService {
     return { otpCodes };
   }
 
+  async forgotPassword(email: string) {
+    const user = await this.user.findByEmail(email);
+    // If not found or is banned return without providing any error to frontend
+    if (!user || user.state === UserState.BANNED) return;
+
+    // Prevent multiple resetting password request
+    const allUserTokens = await this.recoveryToken.findAll({
+      where: { userId: user.id },
+    });
+
+    // TODO improve this logic by checking creation time
+    if (allUserTokens.length > 5) {
+      await this.user.updateById(user.id, { state: UserState.BANNED });
+      return;
+    }
+
+    const token = createRandomString();
+    const hashedToken = await hash(token, 10);
+    await this.recoveryToken.create({
+      userId: user.id,
+      token: hashedToken,
+      expiresAt: new Date(Date.now() + this.expResetPassword),
+    });
+    const payload: EmailResetPasswordDto = {
+      token,
+      email,
+    };
+    this.event.emit(EmailResetPassword, payload);
+  }
+
+  async resetPassword(password: string, token: string): Promise<void> {
+    const hashedToken = await hash(token, 10);
+    const exist = await this.recoveryToken.findOne({
+      where: { token: hashedToken },
+    });
+    if (!exist) throw new UnauthorizedException('Invalid password reset token');
+
+    // Now we know that the token exists, so it is valid. We start a
+    // transaction to prevent race conditions.
+    await this.resetPasswordTransaction.run({
+      userId: exist.userId,
+      password,
+      hashedToken,
+    });
+  }
+
   async confirmEmail(email: string, code: number): Promise<void> {
     const user = await this.user.getUserWithUnselected({ email, level: 0 });
-
-    if (!user || user.otpCodes?.includes(code))
+    if (!user || !user.otpCodes?.includes(code))
       throw new UnauthorizedException(
         'You have entered an invalid verification code',
       );
 
-    const codeExpired =
-      Date.now() - user.updatedAt.getTime() > this.expVerifyMail;
-    if (codeExpired)
+    if (isExpired(user.updatedAt, this.expVerifyMail))
       throw new UnauthorizedException('Your verification code is expired');
 
     await this.user.updateById(user.id, {
@@ -171,7 +277,7 @@ export class AuthService {
     const user = await this.user.findByEmail(email);
     if (!user) return;
 
-    if (user.level > 0)
+    if (user.state === UserState.ACTIVE)
       throw new UnprocessableEntityException(
         'Your account has already been activated.',
       );
@@ -182,7 +288,7 @@ export class AuthService {
       );
 
     // Wait 5 minutes before request new email varification code
-    if ((Date.now() - user.updatedAt.getTime()) / 60000 < 5) {
+    if (!isExpired(user.updatedAt, 5 * 60 * 1000)) {
       throw new UnprocessableEntityException(
         'An email has already been sent. Wait 5 minutes before requesting new one.',
       );

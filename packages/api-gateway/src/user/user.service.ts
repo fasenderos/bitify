@@ -72,18 +72,23 @@ export class UserService {
         'You have entered an invalid email or password',
       );
 
-    await this.validateUserAuth(user);
+    this.validateUserAuth(user);
     return user;
   }
 
-  async validateUserAuth(user: User) {
-    if (user.level === 0 || user.state === UserState.PENDING)
-      throw new UnauthorizedException('Your account is not active');
-
-    if (user.state === UserState.BANNED)
-      throw new UnauthorizedException(
-        'Sorry, your account is banned. Contact us for more information.',
-      );
+  validateUserAuth(user: User) {
+    switch (user.state) {
+      case UserState.ACTIVE:
+        break;
+      case UserState.PENDING:
+        throw new UnauthorizedException('Your account is not active');
+      case UserState.BANNED:
+        throw new UnauthorizedException(
+          'Sorry, your account is banned. Contact us for more information.',
+        );
+      default:
+        break;
+    }
   }
 
   getUserWithUnselected(where: FindOptionsWhere<User>) {

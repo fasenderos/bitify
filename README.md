@@ -26,7 +26,7 @@ If you want to speed up the Bitify release, please contribute to this project by
 
 - [x] User registration and login
 - [x] Email verification
-- [ ] Forgot and reset password
+- [x] Forgot and reset password
 - [x] Two Factor Authentication
 - [x] OTP Code Backup
 - [ ] Captcha

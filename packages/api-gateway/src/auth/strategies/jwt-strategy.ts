@@ -30,7 +30,7 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
     // Get user from DB and add the result on req.user
     const user = await this.user.findById(payload.sub);
     if (user === null) throw new UnauthorizedException();
-    await this.user.validateUserAuth(user);
+    this.user.validateUserAuth(user);
     return user;
   }
 }

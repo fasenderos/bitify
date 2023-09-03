@@ -32,7 +32,7 @@ export class User extends BaseEntity {
   @Column({ default: false })
   otp!: boolean;
 
-  @Column({ nullable: true, select: false })
+  @Column('varchar', { nullable: true, select: false })
   otpSecret!: string | null;
 
   @Column('int', { array: true, nullable: true, select: false })

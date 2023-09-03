@@ -60,7 +60,7 @@ jobs:
       - name: Run linter
         run: cd packages/api-gateway && pnpm lint
       - name: Run test suite
-        run: cd packages/api-gateway && pnpm test
+        run: cd packages/api-gateway && pnpm test:ci
       - name: Upload coverage reports to Codecov
         if: ${{ matrix.node-version == 20 }}
         uses: codecov/codecov-action@v3
