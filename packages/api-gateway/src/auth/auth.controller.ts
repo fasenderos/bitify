@@ -45,9 +45,16 @@ export class AuthController {
   register(
     @Body(ValidationPipe) dto: RegisterDto,
     @RealIP() userIP: string,
+    @Headers('user-agent') userAgent: string,
   ): Promise<void> {
     const { email, password, recaptchaToken } = dto;
-    return this.auth.register(email, password, userIP, recaptchaToken);
+    return this.auth.register(
+      email,
+      password,
+      userIP,
+      userAgent,
+      recaptchaToken,
+    );
   }
 
   @Post('login')
@@ -99,9 +106,13 @@ export class AuthController {
 
   @Post('reset-password')
   @HttpCode(200)
-  resetPassword(@Body(ValidationPipe) dto: ResetPasswordDto): Promise<void> {
+  resetPassword(
+    @Body(ValidationPipe) dto: ResetPasswordDto,
+    @RealIP() userIP: string,
+    @Headers('user-agent') userAgent: string,
+  ): Promise<void> {
     const { password, token } = dto;
-    return this.auth.resetPassword(password, token);
+    return this.auth.resetPassword(password, token, userIP, userAgent);
   }
 
   @Post('confirm-email')

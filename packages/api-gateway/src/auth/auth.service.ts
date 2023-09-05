@@ -22,6 +22,8 @@ import {
 } from './interfaces';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import {
+  ActivityRecord,
+  ActivityRecordDto,
   EmailConfirmation,
   EmailConfirmationDto,
   EmailResetPassword,
@@ -116,15 +118,34 @@ export class AuthService {
     email: string,
     password: string,
     userIP: string,
+    userAgent: string,
     recaptchaToken?: string,
   ): Promise<void> {
     if (this.recaptchaSecret)
       await this.validateCaptcha(userIP, recaptchaToken);
 
     const code = this.createPinCode();
-    await this.user.createUser({ email, password, otpCodes: [code] });
+    const result = await this.user.createUser({
+      email,
+      password,
+      otpCodes: [code],
+    });
+    // If no error happens we have the insertedId
+    const insertedId = result.identifiers[0]?.['id'];
+    if (!insertedId) throw new BadRequestException('Account creation failed');
+
     const payload: EmailConfirmationDto = { email, code };
     this.event.emit(EmailConfirmation, payload);
+
+    const activity: ActivityRecordDto = {
+      userId: insertedId,
+      userIP,
+      userAgent,
+      action: 'signup',
+      result: 'succeed',
+      topic: 'account',
+    };
+    this.event.emit(ActivityRecord, activity);
   }
 
   async login(
@@ -259,7 +280,12 @@ export class AuthService {
     this.event.emit(EmailResetPassword, payload);
   }
 
-  async resetPassword(password: string, token: string): Promise<void> {
+  async resetPassword(
+    password: string,
+    token: string,
+    userIP: string,
+    userAgent: string,
+  ): Promise<void> {
     const hashedToken = await hash(token, 10);
     const exist = await this.recoveryToken.findOne({
       where: { token: hashedToken },
@@ -273,6 +299,16 @@ export class AuthService {
       password,
       hashedToken,
     });
+
+    const activity: ActivityRecordDto = {
+      userId: exist.userId,
+      userIP,
+      userAgent,
+      topic: 'password',
+      action: 'password.reset',
+      result: 'succeed',
+    };
+    this.event.emit(ActivityRecord, activity);
   }
 
   async confirmEmail(email: string, code: number): Promise<void> {

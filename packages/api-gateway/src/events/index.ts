@@ -9,3 +9,14 @@ export interface EmailResetPasswordDto {
   token: string;
   email: string;
 }
+
+export const ActivityRecord = 'system.activity.record';
+export interface ActivityRecordDto {
+  userId: string;
+  userIP: string;
+  userAgent: string;
+  action: 'signup' | 'password.reset';
+  result: 'succeed' | 'failes';
+  topic: 'account' | 'password';
+  data?: string;
+}

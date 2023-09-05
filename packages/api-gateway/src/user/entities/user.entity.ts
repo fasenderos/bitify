@@ -1,6 +1,6 @@
 import { Column, Entity } from 'typeorm';
 import { BaseEntity } from '../../base/base.entity';
-import { UserState } from '../../common/constants';
+import { UserRole, UserState } from '../../common/constants';
 
 @Entity({ name: 'users' })
 export class User extends BaseEntity {
@@ -10,8 +10,14 @@ export class User extends BaseEntity {
   @Column({ select: false })
   passwordHash!: string;
 
-  @Column({ default: 'member' })
-  role!: string;
+  /**
+   * superadmin = 1000
+   * admin = 1001
+   * support = 1002
+   * member = 1 (default)
+   */
+  @Column({ default: UserRole.MEMBER })
+  role!: number;
 
   /**
    * Level 0 is default account level
@@ -22,9 +28,9 @@ export class User extends BaseEntity {
   @Column({ default: 0 })
   level!: number;
 
-  /** active, pending, banned */
+  /** active (1), pending (0), banned (-1) */
   @Column({ default: UserState.PENDING })
-  state!: string;
+  state!: number;
 
   @Column({ nullable: true, type: 'uuid' })
   referralId!: string;

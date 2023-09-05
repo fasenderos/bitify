@@ -9,6 +9,7 @@ import { TerminusModule } from '@nestjs/terminus';
 import { DBModule } from './database/database.module';
 import { AuthModule } from './auth/auth.module';
 import { EventEmitterModule } from '@nestjs/event-emitter';
+import { ActivityModule } from './activity/activity.module';
 
 @Module({
   imports: [
@@ -56,6 +57,7 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
         { method: RequestMethod.ALL, path: 'auth/:all+' },
       ],
     }),
+    ActivityModule,
     AuthModule,
     UserModule,
     TerminusModule,
