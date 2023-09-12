@@ -242,7 +242,7 @@ export class AuthService {
     if (!user || user.state === UserState.BANNED) return;
 
     // Prevent multiple resetting password request
-    const allUserTokens = await this.recoveryToken.findAll({
+    const allUserTokens = await this.recoveryToken.find({
       where: { userId: user.id },
     });
 

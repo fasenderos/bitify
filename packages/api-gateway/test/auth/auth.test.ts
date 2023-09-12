@@ -15,6 +15,7 @@ import { UserService } from '../../src/user/user.service';
 import { User } from '../../src/user/entities/user.entity';
 import { UserState } from '../../src/common/constants';
 import { RecoveryTokenService } from '../../src/recovery-token/recovery-token.service';
+import { CipherService } from '../../src/common/modules/cipher/cipher.service';
 
 let app: NestFastifyApplication;
 let http: HttpClient;
@@ -253,7 +254,10 @@ const testConfirmEmail = async (
   app: NestFastifyApplication,
   equal: any,
 ): Promise<User> => {
-  const code = user.otpCodes?.[0];
+  // With e2e we can't test if the user has received the mail so we decrypt the code saved in DB
+  // assuming that an email as always been sent.
+  const cipher = app.get(CipherService);
+  const code = cipher.decrypt(user.verifyCode as string);
   // Test wrong confirm email code
   const wrongCode = await http.post('/auth/confirm-email', {
     email: user.email,
@@ -264,7 +268,7 @@ const testConfirmEmail = async (
   // Test right confirm email code
   const confirm = await http.post('/auth/confirm-email', {
     email: user.email,
-    code: code?.toString(),
+    code,
   });
   equal(confirm.statusCode, HttpStatus.OK);
 
@@ -334,7 +338,7 @@ const testForgotPassword = async (
 
   const recoveryTokens = await app
     .get(RecoveryTokenService)
-    .findAll({ where: { userId: user.id } });
+    .find({ where: { userId: user.id } });
   equal(recoveryTokens.length, 1, 'Should be only one token');
   equal(recoveryTokens[0]!.token.length > 0, true);
 
