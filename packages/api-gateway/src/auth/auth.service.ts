@@ -13,13 +13,7 @@ import { toDataURL } from 'qrcode';
 import { ConfigService } from '@nestjs/config';
 import { Verify2FADto } from './dto/verify-2fa.dto';
 import { CipherService } from '../common/modules/cipher/cipher.service';
-import { randomInt } from 'crypto';
-import {
-  I2FAResponse,
-  I2FaEnabled,
-  IEnable2FAResponse,
-  ILoginResponse,
-} from './interfaces';
+import { I2FAResponse, IEnable2FAResponse, ILoginResponse } from './interfaces';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import {
   ActivityRecord,
@@ -128,7 +122,8 @@ export class AuthService {
     const result = await this.user.createUser({
       email,
       password,
-      otpCodes: [code],
+      verifyCode: this.cipher.encrypt(code),
+      verifyExpire: new Date(Date.now() + this.expVerifyMail),
     });
     // If no error happens we have the insertedId
     const insertedId = result.identifiers[0]?.['id'];
@@ -195,12 +190,8 @@ export class AuthService {
 
   async verifyOTP(userId: string, otp: string): Promise<void> {
     const user = await this.user.getUserWithUnselected({ id: userId });
-    if (!user || !user.otpSecret || !user.otp || !user.otpCodes)
+    if (!user || !user.otpSecret || !user.otp)
       throw new UnauthorizedException('Wrong OTP configuration');
-
-    // Check if one of the OTP backUp code has been used
-    // TODO if so we have to remove the used one and/or recreate one/ten new OTP Code??
-    if (user.otpCodes.includes(parseInt(otp))) return;
 
     const userSecret = this.cipher.decrypt(user.otpSecret);
     const isValid = this.isOTPValid(otp, userSecret);
@@ -231,23 +222,18 @@ export class AuthService {
     });
   }
 
-  async verify2FA(userId: string, dto: Verify2FADto): Promise<I2FaEnabled> {
+  async verify2FA(userId: string, dto: Verify2FADto): Promise<void> {
     const isValid = this.isOTPValid(dto.otp, dto.secret);
     if (!isValid)
       throw new UnauthorizedException(
         'The provided one time password is not valid',
       );
 
-    // Fixed OTP Code that can be used to bypass the OTP
-    const otpCodes = new Array(10).map(this.createPinCode);
-
     // Save secret (encrypted) to db and enable 2FA
     await this.user.updateById(userId, {
       otp: true,
       otpSecret: this.cipher.encrypt(dto.secret),
-      otpCodes,
     });
-    return { otpCodes };
   }
 
   async forgotPassword(email: string) {
@@ -311,20 +297,27 @@ export class AuthService {
     this.event.emit(ActivityRecord, activity);
   }
 
-  async confirmEmail(email: string, code: number): Promise<void> {
+  async confirmEmail(email: string, code: string): Promise<void> {
     const user = await this.user.getUserWithUnselected({ email, level: 0 });
-    if (!user || !user.otpCodes?.includes(code))
+    const verifyCode = user?.verifyCode
+      ? this.cipher.decrypt(user.verifyCode)
+      : null;
+    if (!user || verifyCode !== code)
       throw new UnauthorizedException(
         'You have entered an invalid verification code',
       );
 
-    if (isExpired(user.updatedAt, this.expVerifyMail))
+    if (
+      user.verifyExpire == null ||
+      isExpired(user.verifyExpire, this.expVerifyMail)
+    )
       throw new UnauthorizedException('Your verification code is expired');
 
     await this.user.updateById(user.id, {
       level: 1,
       state: UserState.ACTIVE,
-      otpCodes: null,
+      verifyCode: null,
+      verifyExpire: null,
     });
   }
 
@@ -343,6 +336,8 @@ export class AuthService {
       );
 
     // Wait 5 minutes before request new email varification code
+    // We check on updatedAt because at this user state,
+    // only the resendConfirmEmail method can update user
     if (!isExpired(user.updatedAt, 5 * 60 * 1000)) {
       throw new UnprocessableEntityException(
         'An email has already been sent. Wait 5 minutes before requesting new one.',
@@ -350,7 +345,10 @@ export class AuthService {
     }
 
     const code = this.createPinCode();
-    await this.user.updateById(user.id, { otpCodes: [code] });
+    await this.user.updateById(user.id, {
+      verifyCode: code,
+      verifyExpire: new Date(Date.now() + this.expVerifyMail),
+    });
     this.event.emit(EmailConfirmation, { email, code });
   }
 
@@ -395,7 +393,7 @@ export class AuthService {
     return { accessToken: tokens[0], refreshToken: tokens[1] };
   }
 
-  private createPinCode(): number {
-    return randomInt(100000, 999999);
+  private createPinCode(): string {
+    return Math.random().toString().substring(2, 8);
   }
 }

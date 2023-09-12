@@ -21,7 +21,8 @@ import { UserState } from '../common/constants';
 interface IUserCreate {
   email: string;
   password: string;
-  otpCodes: number[];
+  verifyCode: string;
+  verifyExpire: Date;
 }
 
 @Injectable()
@@ -42,11 +43,17 @@ export class UserService {
   public async createUser({
     email,
     password,
-    otpCodes,
+    verifyCode,
+    verifyExpire,
   }: IUserCreate): Promise<InsertResult> {
     const passwordHash = await hash(password, 10);
     try {
-      return await this.user.insert({ email, passwordHash, otpCodes });
+      return await this.user.insert({
+        email,
+        passwordHash,
+        verifyCode,
+        verifyExpire,
+      });
     } catch (error: any) {
       if (error instanceof QueryFailedError) {
         const err = error.driverError as DatabaseError;

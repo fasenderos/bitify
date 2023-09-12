@@ -7,10 +7,6 @@ export interface ILoginResponse {
   refreshToken: string;
 }
 
-export interface I2FaEnabled {
-  otpCodes: number[];
-}
-
 export interface IEnable2FAResponse {
   secret: string;
   qrcode: string;

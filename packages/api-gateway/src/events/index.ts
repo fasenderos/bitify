@@ -1,7 +1,7 @@
 export const EmailConfirmation = 'email.confirmation.token';
 export interface EmailConfirmationDto {
   email: string;
-  code: number;
+  code: string;
 }
 
 export const EmailResetPassword = 'email.forgot.password';
