@@ -254,11 +254,13 @@ export class AuthService {
 
     const token = createRandomString();
     const hashedToken = await hash(token, 10);
-    await this.recoveryToken.create({
-      userId: user.id,
-      token: hashedToken,
-      expiresAt: new Date(Date.now() + this.expResetPassword),
-    });
+    await this.recoveryToken.create(
+      {
+        token: hashedToken,
+        expiresAt: new Date(Date.now() + this.expResetPassword),
+      },
+      user.id,
+    );
     const payload: EmailResetPasswordDto = {
       token,
       email,
@@ -274,7 +276,7 @@ export class AuthService {
   ): Promise<void> {
     const hashedToken = await hash(token, 10);
     const exist = await this.recoveryToken.findOne({
-      where: { token: hashedToken },
+      token: hashedToken,
     });
     if (!exist) throw new UnauthorizedException('Invalid password reset token');
 

@@ -1,7 +1,8 @@
 import { Column, Entity } from 'typeorm';
 import { BaseEntity } from '../base/base.entity';
+import { Collections } from '../common/constants';
 
-@Entity({ name: 'recovery_tokens' })
+@Entity({ name: Collections.RECOVERY_TOKENS })
 export class RecoveryToken extends BaseEntity {
   @Column({ type: 'uuid' })
   userId!: string;
@@ -9,6 +10,6 @@ export class RecoveryToken extends BaseEntity {
   @Column()
   token!: string;
 
-  @Column({ type: 'timestamp with time zone' })
+  @Column({ type: 'timestamptz' })
   expiresAt!: Date;
 }
