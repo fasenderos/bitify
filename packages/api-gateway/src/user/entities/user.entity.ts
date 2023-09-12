@@ -1,8 +1,9 @@
 import { Column, Entity } from 'typeorm';
 import { BaseEntity } from '../../base/base.entity';
-import { UserRole, UserState } from '../../common/constants';
+import { Collections, UserState } from '../../common/constants';
+import { UserRole } from '../../app.roles';
 
-@Entity({ name: 'users' })
+@Entity({ name: Collections.USERS })
 export class User extends BaseEntity {
   @Column({ unique: true })
   email!: string;
@@ -11,13 +12,13 @@ export class User extends BaseEntity {
   passwordHash!: string;
 
   /**
-   * superadmin = 1000
-   * admin = 1001
-   * support = 1002
-   * member = 1 (default)
+   * superadmin = has an access to the whole system without any limits
+   * admin = has nearly full access except managing permissions
+   * support
+   * member
    */
   @Column({ default: UserRole.MEMBER })
-  role!: number;
+  role!: string;
 
   /**
    * Level 0 is default account level
@@ -38,12 +39,12 @@ export class User extends BaseEntity {
   @Column({ default: false })
   otp!: boolean;
 
-  @Column({ nullable: true, select: false })
+  @Column('varchar', { nullable: true, select: false })
   otpSecret!: string | null;
 
-  @Column({ nullable: true, select: false })
+  @Column('varchar', { nullable: true, select: false })
   verifyCode!: string | null;
 
-  @Column({ nullable: true, select: false })
+  @Column('timestamptz', { nullable: true, select: false })
   verifyExpire!: Date | null;
 }

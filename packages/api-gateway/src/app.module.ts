@@ -10,6 +10,8 @@ import { DBModule } from './database/database.module';
 import { AuthModule } from './auth/auth.module';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { ActivityModule } from './activity/activity.module';
+import { AccessControlModule } from 'nest-access-control';
+import { roles } from './app.roles';
 
 @Module({
   imports: [
@@ -57,6 +59,7 @@ import { ActivityModule } from './activity/activity.module';
         { method: RequestMethod.ALL, path: 'auth/:all+' },
       ],
     }),
+    AccessControlModule.forRoles(roles),
     ActivityModule,
     AuthModule,
     UserModule,

@@ -1,12 +1,8 @@
-export enum Tables {}
-
-export enum UserRole {
-  // SUPER ADMIN has an access to the whole system without any limits
-  SUPERADMIN = 1000,
-  // ADMIN has nearly full access except managing permissions
-  ADMIN = 1001,
-  SUPPORT = 1002,
-  MEMBER = 1,
+export enum Collections {
+  ACTIVITIES = 'activities',
+  API_KEYS = 'api_keys',
+  RECOVERY_TOKENS = 'recovery_tokens',
+  USERS = 'users',
 }
 
 export enum UserState {

@@ -15,7 +15,7 @@ import { LoginDto } from './dto/login.dto';
 import { AuthService } from './auth.service';
 import { JwtGuard } from './guards/jwt.guard';
 import { JwtRefreshGuard } from './guards/jwt-refresh.guard';
-import { GetUser } from '../common/decorators/get-user.decorator';
+import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { User } from '../user/entities/user.entity';
 import { Verify2FADto } from './dto/verify-2fa.dto';
 import { Jwt2FAGuard } from './guards/jwt-2fa.guard';
@@ -86,7 +86,7 @@ export class AuthController {
   @UsePipes(new TrimPipe())
   @HttpCode(200)
   async verifyOTP(
-    @GetUser('id') userId: string,
+    @CurrentUser('id') userId: string,
     @Body(ValidationPipe) dto: VerifyOTPDto,
   ): Promise<ILoginResponse> {
     await this.auth.verifyOTP(userId, dto.otp);
@@ -129,7 +129,7 @@ export class AuthController {
   @ApiBearerAuth()
   @UseGuards(JwtGuard)
   @Get('enable2fa')
-  enable2FA(@GetUser() user: User): Promise<IEnable2FAResponse> {
+  enable2FA(@CurrentUser() user: User): Promise<IEnable2FAResponse> {
     return this.auth.enable2FA(user);
   }
 
@@ -140,7 +140,7 @@ export class AuthController {
   @UsePipes(new TrimPipe())
   @HttpCode(200)
   verify2FA(
-    @GetUser('id') userId: string,
+    @CurrentUser('id') userId: string,
     @Body(ValidationPipe) dto: Verify2FADto,
   ): Promise<void> {
     return this.auth.verify2FA(userId, dto);
@@ -153,7 +153,7 @@ export class AuthController {
   @UsePipes(new TrimPipe())
   @HttpCode(200)
   async disable2FA(
-    @GetUser('id') userId: string,
+    @CurrentUser('id') userId: string,
     @Body(ValidationPipe) dto: VerifyOTPDto,
   ): Promise<void> {
     await this.auth.verifyOTP(userId, dto.otp);
