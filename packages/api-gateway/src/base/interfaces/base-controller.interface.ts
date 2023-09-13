@@ -1,7 +1,7 @@
 import { DeepPartial } from 'typeorm';
 import { BaseEntity } from '../base.entity';
 import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity';
-import { User } from '../../user/entities/user.entity';
+import { User } from '../../users/entities/user.entity';
 
 export interface IBaseController<
   T extends BaseEntity,

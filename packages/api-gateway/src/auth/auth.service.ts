@@ -4,10 +4,10 @@ import {
   UnauthorizedException,
   UnprocessableEntityException,
 } from '@nestjs/common';
-import { UserService } from '../user/user.service';
+import { UsersService } from '../users/users.service';
 import { SessionService } from './session.service';
 import { TokenService } from './token.service';
-import { User } from '../user/entities/user.entity';
+import { User } from '../users/entities/user.entity';
 import { authenticator } from 'otplib';
 import { toDataURL } from 'qrcode';
 import { ConfigService } from '@nestjs/config';
@@ -25,12 +25,12 @@ import {
 } from '../events';
 import timestring from 'timestring';
 import { UserState } from '../common/constants';
-import { RecoveryTokenService } from '../recovery-token/recovery-token.service';
+import { RecoveryTokensService } from '../recovery-tokens/recovery-tokens.service';
 import { createRandomString, isExpired } from '../common/utils';
 import { hash } from 'bcrypt';
 import { BaseTransaction } from '../base/base.transaction';
 import { DataSource, EntityManager } from 'typeorm';
-import { RecoveryToken } from '../recovery-token/recovery-token.entity';
+import { RecoveryToken } from '../recovery-tokens/entities/recovery-token.entity';
 import { request } from 'undici';
 
 interface ResetPasswordTransactionInput {
@@ -86,10 +86,10 @@ export class AuthService {
 
   constructor(
     private readonly resetPasswordTransaction: ResetPasswordTransaction,
-    private readonly recoveryToken: RecoveryTokenService,
+    private readonly recoveryToken: RecoveryTokensService,
     private readonly session: SessionService,
     private readonly token: TokenService,
-    private readonly user: UserService,
+    private readonly user: UsersService,
     private readonly cipher: CipherService,
     private readonly config: ConfigService,
     private readonly event: EventEmitter2,
@@ -348,7 +348,7 @@ export class AuthService {
 
     const code = this.createPinCode();
     await this.user.updateById(user.id, {
-      verifyCode: code,
+      verifyCode: this.cipher.encrypt(code),
       verifyExpire: new Date(Date.now() + this.expVerifyMail),
     });
     this.event.emit(EmailConfirmation, { email, code });

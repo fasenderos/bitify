@@ -4,12 +4,12 @@ import { ConfigModule } from '@nestjs/config';
 import config from './config';
 import { LoggerModule } from 'nestjs-pino';
 import { IncomingMessage } from 'http';
-import { UserModule } from './user/user.module';
+import { UsersModule } from './users/users.module';
 import { TerminusModule } from '@nestjs/terminus';
 import { DBModule } from './database/database.module';
 import { AuthModule } from './auth/auth.module';
 import { EventEmitterModule } from '@nestjs/event-emitter';
-import { ActivityModule } from './activity/activity.module';
+import { ActivitiesModule } from './activities/activities.module';
 import { AccessControlModule } from 'nest-access-control';
 import { roles } from './app.roles';
 
@@ -60,9 +60,9 @@ import { roles } from './app.roles';
       ],
     }),
     AccessControlModule.forRoles(roles),
-    ActivityModule,
+    ActivitiesModule,
     AuthModule,
-    UserModule,
+    UsersModule,
     TerminusModule,
   ],
   controllers: [AppController],

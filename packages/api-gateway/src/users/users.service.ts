@@ -26,7 +26,7 @@ interface IUserCreate {
 }
 
 @Injectable()
-export class UserService {
+export class UsersService {
   constructor(
     @InjectRepository(User)
     private readonly user: Repository<User>,

@@ -23,7 +23,7 @@ import { DeepPartial, FindManyOptions, FindOptionsWhere } from 'typeorm';
 import { Collections } from '../common/constants';
 import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity';
 import { ApiBearerAuth, ApiResponse } from '@nestjs/swagger';
-import { User } from '../user/entities/user.entity';
+import { User } from '../users/entities/user.entity';
 import { ACGuard, UseRoles } from 'nest-access-control';
 
 /**

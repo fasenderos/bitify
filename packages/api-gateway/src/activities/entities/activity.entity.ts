@@ -1,6 +1,6 @@
 import { Column, Entity } from 'typeorm';
-import { BaseEntity } from '../base/base.entity';
-import { Collections } from '../common/constants';
+import { BaseEntity } from '../../base/base.entity';
+import { Collections } from '../../common/constants';
 
 @Entity({ name: Collections.ACTIVITIES })
 export class Activity extends BaseEntity {

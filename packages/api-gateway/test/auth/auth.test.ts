@@ -11,10 +11,10 @@ import { clearDatabase } from '../helper';
 import { DataSource } from 'typeorm';
 import { createRandomString } from '../../src/common/utils';
 import { HttpClient } from '../http-client';
-import { UserService } from '../../src/user/user.service';
-import { User } from '../../src/user/entities/user.entity';
+import { UsersService } from '../../src/users/users.service';
+import { User } from '../../src/users/entities/user.entity';
 import { UserState } from '../../src/common/constants';
-import { RecoveryTokenService } from '../../src/recovery-token/recovery-token.service';
+import { RecoveryTokensService } from '../../src/recovery-tokens/recovery-tokens.service';
 import { CipherService } from '../../src/common/modules/cipher/cipher.service';
 
 let app: NestFastifyApplication;
@@ -191,7 +191,7 @@ const testRegisterUser = async (
   equal(login.body.message, 'Your account is not active');
 
   const user = (await app
-    .get(UserService)
+    .get(UsersService)
     .getUserWithUnselected({ email })) as User;
 
   equal(user.level, 0, 'Level for not confirmed email');
@@ -212,21 +212,21 @@ const testResendConfirmEmail = async (
   equal(wrongEmail.statusCode, HttpStatus.OK);
 
   // Set the user has already active
-  await app.get(UserService).updateById(user.id, { state: UserState.ACTIVE });
+  await app.get(UsersService).updateById(user.id, { state: UserState.ACTIVE });
   const activeUser = await await http.post('/auth/resend-confirm-email', {
     email: user.email,
   });
   equal(activeUser.statusCode, HttpStatus.UNPROCESSABLE_ENTITY);
 
-  // Set the user has already active
-  await app.get(UserService).updateById(user.id, { state: UserState.BANNED });
+  // Set the user has banned
+  await app.get(UsersService).updateById(user.id, { state: UserState.BANNED });
   const bannedUser = await await http.post('/auth/resend-confirm-email', {
     email: user.email,
   });
   equal(bannedUser.statusCode, HttpStatus.UNPROCESSABLE_ENTITY);
 
   // Restore user previous state
-  await app.get(UserService).updateById(user.id, { state: user.state });
+  await app.get(UsersService).updateById(user.id, { state: user.state });
   const notEnoughTime = await await http.post('/auth/resend-confirm-email', {
     email: user.email,
   });
@@ -234,7 +234,7 @@ const testResendConfirmEmail = async (
 
   // Simulate enough time (5 min) is passed before requesting new email
   await app
-    .get(UserService)
+    .get(UsersService)
     .updateById(user.id, { updatedAt: new Date(Date.now() - 5 * 60 * 1000) });
 
   const resendEmail = await await http.post('/auth/resend-confirm-email', {
@@ -243,7 +243,7 @@ const testResendConfirmEmail = async (
   equal(resendEmail.statusCode, HttpStatus.OK);
 
   const updatedUser = await app
-    .get(UserService)
+    .get(UsersService)
     .getUserWithUnselected({ id: user.id });
 
   return updatedUser as User;
@@ -273,7 +273,7 @@ const testConfirmEmail = async (
   equal(confirm.statusCode, HttpStatus.OK);
 
   const updatedUser = (await app
-    .get(UserService)
+    .get(UsersService)
     .getUserWithUnselected({ id: user.id })) as User;
 
   equal(updatedUser.level, 1, 'Level for confirmed email');
@@ -337,7 +337,7 @@ const testForgotPassword = async (
   equal(forgot.statusCode, HttpStatus.OK);
 
   const recoveryTokens = await app
-    .get(RecoveryTokenService)
+    .get(RecoveryTokensService)
     .find({ where: { userId: user.id } });
   equal(recoveryTokens.length, 1, 'Should be only one token');
   equal(recoveryTokens[0]!.token.length > 0, true);

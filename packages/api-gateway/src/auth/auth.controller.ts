@@ -16,7 +16,7 @@ import { AuthService } from './auth.service';
 import { JwtGuard } from './guards/jwt.guard';
 import { JwtRefreshGuard } from './guards/jwt-refresh.guard';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
-import { User } from '../user/entities/user.entity';
+import { User } from '../users/entities/user.entity';
 import { Verify2FADto } from './dto/verify-2fa.dto';
 import { Jwt2FAGuard } from './guards/jwt-2fa.guard';
 import { VerifyOTPDto } from './dto/verify-otp.dto';
