@@ -14,16 +14,26 @@ export abstract class BaseService<
   UpdateDTO extends QueryDeepPartialEntity<Entity>,
 > implements IBaseService<Entity, CreateDTO, UpdateDTO>
 {
-  constructor(private readonly repo: Repository<Entity>) {}
+  constructor(readonly repo: Repository<Entity>) {}
+
+  /**
+   * Instantiating the entity.
+   * @param {CreateDTO} data The entity to be created
+   * @param {string} userId The userId of the user owner of the resource
+   * @returns The entity
+   */
+  createEntity(data: CreateDTO, userId: string): Entity {
+    // Instantiating the entity before saving so hooks run
+    return this.repo.create({ ...data, userId: userId });
+  }
 
   /**
    * Saves a given entity in the database.
-   * @param {CreateDTO} data The entity to be created
-   * @param {string} userId The userId of the user owner of the resource
+   * @param {Entity} data The entity to be created
    * @returns The created resource
    */
-  create(data: CreateDTO, userId: string): Promise<Entity> {
-    return this.repo.save({ ...data, userId: userId });
+  save(data: Entity): Promise<Entity> {
+    return this.repo.save(data);
   }
 
   /**

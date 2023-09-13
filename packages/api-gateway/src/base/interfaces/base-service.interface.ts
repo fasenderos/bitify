@@ -7,7 +7,9 @@ export interface IBaseService<
   C extends DeepPartial<T>,
   U extends QueryDeepPartialEntity<T>,
 > {
-  create(data: C, userId: string): Promise<T>;
+  beforeSave?(data: T): Promise<T>;
+  createEntity(data: C, userId: string): T;
+  save(data: T): Promise<T>;
   find(options?: FindManyOptions<T>): Promise<T[]>;
   findOne(filter: FindOptionsWhere<T>): Promise<T | null>;
   findById(id: string): Promise<T | null>;

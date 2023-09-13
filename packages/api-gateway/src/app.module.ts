@@ -12,6 +12,7 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
 import { ActivitiesModule } from './activities/activities.module';
 import { AccessControlModule } from 'nest-access-control';
 import { roles } from './app.roles';
+import { ApiKeysModule } from './api-keys/api-keys.module';
 
 @Module({
   imports: [
@@ -61,6 +62,7 @@ import { roles } from './app.roles';
     }),
     AccessControlModule.forRoles(roles),
     ActivitiesModule,
+    ApiKeysModule,
     AuthModule,
     UsersModule,
     TerminusModule,

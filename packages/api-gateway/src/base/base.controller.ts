@@ -90,11 +90,23 @@ export function ControllerFactory<
     })
     @ApiResponse({
       status: HttpStatus.UNAUTHORIZED,
-      description: 'Unauthorized.',
+      description: 'Unauthorized - No credentials or invalid credentials',
     })
-    create(@Body() dto: CreateDTO, @CurrentUser() user: User): Promise<Entity> {
+    @ApiResponse({
+      status: HttpStatus.FORBIDDEN,
+      description: 'Forbidden - Not enough privileges to create the resource',
+    })
+    async create(
+      @Body() dto: CreateDTO,
+      @CurrentUser() user: User,
+    ): Promise<Entity> {
+      // Instantiating the entity
+      const entity = this.service.createEntity(dto, user.id);
+      if (typeof this.service.beforeSave === 'function') {
+        await this.service.beforeSave(entity);
+      }
       // Create owned resource
-      return this.service.create(dto, user.id);
+      return this.service.save(entity);
     }
 
     /**
@@ -114,14 +126,18 @@ export function ControllerFactory<
     })
     @ApiResponse({
       status: HttpStatus.UNAUTHORIZED,
-      description: 'Unauthorized.',
+      description: 'Unauthorized - No credentials or invalid credentials',
+    })
+    @ApiResponse({
+      status: HttpStatus.FORBIDDEN,
+      description: 'Forbidden - Not enough privileges to read the resource',
     })
     findById(
       @Param('id', ParseUUIDPipe) id: string,
       @CurrentUser() user: User,
     ): Promise<Entity | null> {
       // Admin can view any resource
-      if (user.role.includes(UserRole.ADMIN)) {
+      if (user.roles.includes(UserRole.ADMIN)) {
         return this.service.findById(id);
       }
       // Member can view owned resource only
@@ -147,11 +163,15 @@ export function ControllerFactory<
     })
     @ApiResponse({
       status: HttpStatus.UNAUTHORIZED,
-      description: 'Unauthorized.',
+      description: 'Unauthorized - No credentials or invalid credentials',
+    })
+    @ApiResponse({
+      status: HttpStatus.FORBIDDEN,
+      description: 'Forbidden - Not enough privileges to read the resources',
     })
     findAll(@CurrentUser() user: User): Promise<Entity[]> {
       // Admin can view any resources
-      if (user.role.includes(UserRole.ADMIN)) {
+      if (user.roles.includes(UserRole.ADMIN)) {
         return this.service.find();
       }
       // Member can view owned resources only
@@ -179,7 +199,11 @@ export function ControllerFactory<
     })
     @ApiResponse({
       status: HttpStatus.UNAUTHORIZED,
-      description: 'Unauthorized.',
+      description: 'Unauthorized - No credentials or invalid credentials',
+    })
+    @ApiResponse({
+      status: HttpStatus.FORBIDDEN,
+      description: 'Forbidden - Not enough privileges to update the resource',
     })
     async updateById(
       @Param('id', ParseUUIDPipe) id: string,
@@ -208,7 +232,11 @@ export function ControllerFactory<
     })
     @ApiResponse({
       status: HttpStatus.UNAUTHORIZED,
-      description: 'Unauthorized.',
+      description: 'Unauthorized - No credentials or invalid credentials',
+    })
+    @ApiResponse({
+      status: HttpStatus.FORBIDDEN,
+      description: 'Forbidden - Not enough privileges to delete the resource',
     })
     async deleteById(
       @Param('id', ParseUUIDPipe) id: string,

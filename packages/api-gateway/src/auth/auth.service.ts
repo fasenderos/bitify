@@ -254,13 +254,14 @@ export class AuthService {
 
     const token = createRandomString();
     const hashedToken = await hash(token, 10);
-    await this.recoveryToken.create(
+    const tokenEntity = this.recoveryToken.createEntity(
       {
         token: hashedToken,
         expiresAt: new Date(Date.now() + this.expResetPassword),
       },
       user.id,
     );
+    await this.recoveryToken.save(tokenEntity);
     const payload: EmailResetPasswordDto = {
       token,
       email,

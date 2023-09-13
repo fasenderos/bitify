@@ -18,7 +18,7 @@ export class User extends BaseEntity {
    * member
    */
   @Column({ default: UserRole.MEMBER })
-  role!: string;
+  roles!: string;
 
   /**
    * Level 0 is default account level

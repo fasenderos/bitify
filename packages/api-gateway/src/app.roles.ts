@@ -12,6 +12,11 @@ export enum UserRole {
   MEMBER = 'member',
 }
 
+export enum ApiKeyAbility {
+  READ = 'read',
+  READ_WRITE = 'read-write',
+}
+
 export const roles: RolesBuilder = new RolesBuilder();
 
 roles
