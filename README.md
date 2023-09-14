@@ -68,3 +68,7 @@ I would greatly appreciate any contributions to make this project better. Please
 5. Open a pull request
 
 Bug fixes and features should always come with tests and documentation where needed.
+
+# License
+
+Bitify is licensed under the [Apache 2.0](/LICENSE.md) license.
