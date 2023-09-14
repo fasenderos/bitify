@@ -1,46 +1,20 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { test, beforeEach, afterEach } from 'tap';
-import {
-  FastifyAdapter,
-  NestFastifyApplication,
-} from '@nestjs/platform-fastify';
-import { AppModule } from '../../src/app.module';
+import { test } from 'tap';
+import { NestFastifyApplication } from '@nestjs/platform-fastify';
 import { HttpStatus } from '@nestjs/common';
 import { authenticator } from 'otplib';
-import { clearDatabase } from '../helper';
-import { DataSource } from 'typeorm';
 import { createRandomString } from '../../src/common/utils';
-import { HttpClient } from '../http-client';
 import { UsersService } from '../../src/users/users.service';
 import { User } from '../../src/users/entities/user.entity';
 import { UserState } from '../../src/common/constants';
 import { RecoveryTokensService } from '../../src/recovery-tokens/recovery-tokens.service';
 import { CipherService } from '../../src/common/modules/cipher/cipher.service';
+import { buildServer } from '../helper';
+import { HttpClient } from '../http-client';
 
-let app: NestFastifyApplication;
-let http: HttpClient;
-
-beforeEach(async () => {
-  const moduleFixture: TestingModule = await Test.createTestingModule({
-    imports: [AppModule],
-  }).compile();
-  app = moduleFixture.createNestApplication<NestFastifyApplication>(
-    new FastifyAdapter(),
-  );
-  await app.init();
-  await app.getHttpAdapter().getInstance().ready();
-  http = new HttpClient(app);
-});
-
-afterEach(async () => {
-  const dataSource = app.get(DataSource);
-  await clearDatabase(dataSource);
-  await app.close();
-});
-
-test('AuthController', async ({ equal }) => {
-  const dataSource = app.get(DataSource);
-  await clearDatabase(dataSource);
+test('AuthController', async ({ equal, teardown }) => {
+  const app = await buildServer();
+  teardown(async () => await app.close());
+  const http = new HttpClient(app);
 
   const mockUser = {
     email: `${createRandomString()}@somesite.com`,
@@ -48,19 +22,24 @@ test('AuthController', async ({ equal }) => {
   };
 
   // Test registration and get new registered user
-  let user = await testRegisterUser(mockUser, app, equal);
+  let user = await testRegisterUser(mockUser, app, equal, http);
 
   // Test user requesting new email confirmation
-  user = await testResendConfirmEmail(user, app, equal);
+  user = await testResendConfirmEmail(user, app, equal, http);
 
   // Test email confirmation and get updated user
-  user = await testConfirmEmail(user, app, equal);
+  user = await testConfirmEmail(user, app, equal, http);
 
-  const login = await testLogin(user.email, mockUser.password, equal);
+  const login = await testLogin(user.email, mockUser.password, equal, http);
   let accessToken = login.accessToken;
   let refreshToken = login.refreshToken;
 
-  const refresh = await testRefreshToken(accessToken, refreshToken, equal);
+  const refresh = await testRefreshToken(
+    accessToken,
+    refreshToken,
+    equal,
+    http,
+  );
   accessToken = refresh.accessToken;
   refreshToken = refresh.refreshToken;
 
@@ -122,7 +101,7 @@ test('AuthController', async ({ equal }) => {
   equal(disable2FA.statusCode, HttpStatus.OK);
 
   // Test Forgot Password
-  await testForgotPassword(user, app, equal);
+  await testForgotPassword(user, app, equal, http);
 
   // // Test login again with old password
   // const oldPasswordLogin = await http.login(user.email, mockUser.password);
@@ -133,7 +112,11 @@ test('AuthController', async ({ equal }) => {
   // equal(newPasswordLogin.statusCode, HttpStatus.OK);
 });
 
-test('AuthController missing Bearer token', async ({ equal }) => {
+test('AuthController missing Bearer token', async ({ equal, teardown }) => {
+  const app = await buildServer();
+  teardown(async () => await app.close());
+  const http = new HttpClient(app);
+
   const logout = await http.get('/auth/logout');
   equal(logout.statusCode, HttpStatus.UNAUTHORIZED);
 
@@ -154,11 +137,12 @@ test('AuthController missing Bearer token', async ({ equal }) => {
 });
 
 const testRegisterUser = async (
-  modkUser: { email: string; password: string },
+  mockUser: { email: string; password: string },
   app: NestFastifyApplication,
   equal: any,
+  http: HttpClient,
 ): Promise<User> => {
-  const { email, password } = modkUser;
+  const { email, password } = mockUser;
   const wrongPasswords = [
     '1234567', // lower than 8 chars
     '12345678', // only numbers
@@ -168,7 +152,7 @@ const testRegisterUser = async (
   ];
   await Promise.all(
     wrongPasswords.map((wrongPassword) =>
-      http.post('/auth/register', { email: modkUser.email, wrongPassword }),
+      http.post('/auth/register', { email: mockUser.email, wrongPassword }),
     ),
   ).then((responses) =>
     responses.map((res) => equal(res.statusCode, HttpStatus.BAD_REQUEST)),
@@ -182,8 +166,8 @@ const testRegisterUser = async (
   equal(register.statusCode, HttpStatus.CREATED);
 
   // Check only one user with same email
-  const retryregister = await http.post('/auth/register', { email, password });
-  equal(retryregister.statusCode, HttpStatus.CONFLICT);
+  const retryRegister = await http.post('/auth/register', { email, password });
+  equal(retryRegister.statusCode, HttpStatus.CONFLICT);
 
   // Check login before email verification
   const login = await http.login(email, password);
@@ -203,6 +187,7 @@ const testResendConfirmEmail = async (
   user: User,
   app: NestFastifyApplication,
   equal: any,
+  http: HttpClient,
 ): Promise<User> => {
   // Test with wrong email
   const wrongEmail = await http.post('/auth/resend-confirm-email', {
@@ -253,6 +238,7 @@ const testConfirmEmail = async (
   user: User,
   app: NestFastifyApplication,
   equal: any,
+  http: HttpClient,
 ): Promise<User> => {
   // With e2e we can't test if the user has received the mail so we decrypt the code saved in DB
   // assuming that an email as always been sent.
@@ -281,7 +267,12 @@ const testConfirmEmail = async (
   return updatedUser;
 };
 
-const testLogin = async (email: string, password: string, equal: any) => {
+const testLogin = async (
+  email: string,
+  password: string,
+  equal: any,
+  http: HttpClient,
+) => {
   const wrongLogin = await http.login(email, 'wrongpassword');
   equal(wrongLogin.statusCode, HttpStatus.UNAUTHORIZED);
 
@@ -300,6 +291,7 @@ const testRefreshToken = async (
   accessToken: string,
   refreshToken: string,
   equal: any,
+  http: HttpClient,
 ) => {
   // Try to refresh token with wrong refreshToken
   const wrongRefresh = await http.get('/auth/refresh-token', accessToken);
@@ -322,7 +314,38 @@ const testForgotPassword = async (
   user: User,
   app: NestFastifyApplication,
   equal: any,
+  http: HttpClient,
 ): Promise<string> => {
+  // TODO help needed to mock the token so we can test the reset-password
+  // const mockRecoveryToken = 'somerecoverytoken';
+  // const resetPasswordTransaction = app.get(ResetPasswordTransaction);
+  // const recoveryToken = app.get(RecoveryTokensService);
+  // const sessionService = app.get(SessionService);
+  // const tokenService = app.get(TokenService);
+  // const userService = app.get(UsersService);
+  // const cipherService = app.get(CipherService);
+  // const configService = app.get(ConfigService);
+  // const eventEmitter = app.get(EventEmitter2);
+  // const { AuthService } = mock('../../src/auth/auth.service', {
+  //   '../../src/common/utils': {
+  //     createRandomString: () => {
+  //       console.log('called mocked createRandomString()');
+  //       return mockRecoveryToken;
+  //     },
+  //   },
+  // });
+  // const mockAuthService = new AuthService(
+  //   resetPasswordTransaction,
+  //   recoveryToken,
+  //   sessionService,
+  //   tokenService,
+  //   userService,
+  //   cipherService,
+  //   configService,
+  //   eventEmitter,
+  // );
+
+  // recoveryToken = mockUtils.createRandomString();
   // Test with mail that don't exists
   const wrongMail = await http.post('/auth/forgot-password', {
     email: 'notexist@email.com',
@@ -330,11 +353,14 @@ const testForgotPassword = async (
   // Even with wrong mail, the status code is always 200
   equal(wrongMail.statusCode, HttpStatus.OK);
 
-  // Test with valid mail
+  // Test with valid mail. We need to use the mock for getting
+  // the recovery token
   const forgot = await http.post('/auth/forgot-password', {
     email: user.email,
   });
   equal(forgot.statusCode, HttpStatus.OK);
+
+  // await mockAuthService.forgotPassword(user.email);
 
   const recoveryTokens = await app
     .get(RecoveryTokensService)
@@ -348,7 +374,7 @@ const testForgotPassword = async (
   const newPassword = 'Abcd1234';
   const wrongToken = await http.post('/auth/reset-password', {
     password: newPassword,
-    token: 'wrongtoken',
+    token: 'wrongRecoveryToken',
   });
 
   equal(wrongToken.statusCode, HttpStatus.UNAUTHORIZED);
@@ -364,20 +390,18 @@ const testForgotPassword = async (
   await Promise.all(
     wrongPasswords.map((wrongPassword) =>
       http.post('/auth/reset-password', {
-        token,
-        wrongPassword,
+        token: token,
+        password: wrongPassword,
       }),
     ),
   ).then((responses) =>
     responses.map((res) => equal(res.statusCode, HttpStatus.BAD_REQUEST)),
   );
 
-  // TODO when tap release capture we can spy on hash and test reset password
-  // https://github.com/tapjs/tapjs/issues/850
   // Test reset password with right token and right password
   // const rightToken = await http.post('/auth/reset-password', {
+  //   token: mockRecoveryToken,
   //   password: newPassword,
-  //   token,
   // });
   // equal(rightToken.statusCode, HttpStatus.OK);
   return newPassword;

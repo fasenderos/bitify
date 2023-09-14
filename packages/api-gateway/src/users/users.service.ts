@@ -117,4 +117,8 @@ export class UsersService {
       (col) => col.propertyName,
     ) as (keyof User)[];
   }
+
+  async deleteById(id: string, soft = true): Promise<void> {
+    await this.user[soft ? 'softDelete' : 'delete'](id);
+  }
 }

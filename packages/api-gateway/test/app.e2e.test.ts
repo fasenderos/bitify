@@ -1,29 +1,10 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { test, beforeEach, afterEach } from 'tap';
-import {
-  FastifyAdapter,
-  NestFastifyApplication,
-} from '@nestjs/platform-fastify';
-import { AppModule } from '../src/app.module';
+import { test } from 'tap';
+import { buildServer } from './helper';
 
-let app: NestFastifyApplication;
+test('/ping should return "pong"', async ({ equal, same, teardown }) => {
+  const app = await buildServer();
+  teardown(async () => await app.close());
 
-beforeEach(async () => {
-  const moduleFixture: TestingModule = await Test.createTestingModule({
-    imports: [AppModule],
-  }).compile();
-  app = moduleFixture.createNestApplication<NestFastifyApplication>(
-    new FastifyAdapter(),
-  );
-  await app.init();
-  await app.getHttpAdapter().getInstance().ready();
-});
-
-afterEach(async () => {
-  await app.close();
-});
-
-test('/ping should return "pong"', async ({ equal, same }) => {
   const { statusCode, payload } = await app.inject({
     method: 'GET',
     url: '/ping',
@@ -32,7 +13,10 @@ test('/ping should return "pong"', async ({ equal, same }) => {
   same(JSON.parse(payload), {});
 });
 
-test('/time should return server time', async ({ equal }) => {
+test('/time should return server time', async ({ equal, teardown }) => {
+  const app = await buildServer();
+  teardown(async () => await app.close());
+
   const { statusCode, payload } = await app.inject({
     method: 'GET',
     url: '/time',
@@ -42,7 +26,14 @@ test('/time should return server time', async ({ equal }) => {
   equal(typeof data.serverTime, 'number');
 });
 
-test('/health should return server status', async ({ equal, same }) => {
+test('/health should return server status', async ({
+  equal,
+  same,
+  teardown,
+}) => {
+  const app = await buildServer();
+  teardown(async () => await app.close());
+
   const { statusCode, payload } = await app.inject({
     method: 'GET',
     url: '/health',

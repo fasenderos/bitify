@@ -4,11 +4,11 @@ import { createCipheriv, createDecipheriv, randomBytes } from 'crypto';
 
 @Injectable()
 export class CipherService {
-  secret: string;
-  // TODO make the following configurable
-  separator: string = '::';
-  ivLength: number = 16;
-  algorithm: string = 'aes-256-ctr';
+  private secret: string;
+  // TODO make them configurable
+  private separator: string = '::';
+  private ivLength: number = 16;
+  private algorithm: string = 'aes-256-ctr';
 
   constructor(private readonly config: ConfigService) {
     this.secret = this.config.get<string>('encryption.secret') as string;

@@ -1,0 +1,4 @@
+jobs: 1
+timeout: 300
+coverage: false
+check-coverage: false
