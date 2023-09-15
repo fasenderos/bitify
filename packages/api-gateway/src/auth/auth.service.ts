@@ -27,55 +27,9 @@ import timestring from 'timestring';
 import { UserState } from '../common/constants';
 import { RecoveryTokensService } from '../recovery-tokens/recovery-tokens.service';
 import { createRandomString, isExpired } from '../common/utils';
-import { hash } from 'bcrypt';
-import { BaseTransaction } from '../base/base.transaction';
-import { DataSource, EntityManager } from 'typeorm';
-import { RecoveryToken } from '../recovery-tokens/entities/recovery-token.entity';
 import { request } from 'undici';
-
-interface ResetPasswordTransactionInput {
-  userId: string;
-  password: string;
-  hashedToken: string;
-}
-
-@Injectable()
-export class ResetPasswordTransaction extends BaseTransaction<
-  ResetPasswordTransactionInput,
-  void
-> {
-  constructor(connection: DataSource) {
-    super(connection);
-  }
-
-  // Run reset password in transaction to prevent race conditions.
-  protected async execute(
-    data: ResetPasswordTransactionInput,
-    manager: EntityManager,
-  ): Promise<any> {
-    const { userId, password, hashedToken } = data;
-    // Get all user recovery tokens from DB
-    const allUsertokens = await manager.find(RecoveryToken, {
-      where: { userId },
-    });
-    const token = allUsertokens.find((x) => x.token === hashedToken);
-    if (!token)
-      // The token was redeemed by another transaction
-      throw new UnprocessableEntityException('Invalid password reset token');
-
-    // Delete all tokens belonging to this user to prevent duplicate use
-    await manager.delete(RecoveryToken, { userId });
-    // Check if the current token has expired or not
-    if (token.expiresAt.getTime() < Date.now())
-      throw new UnprocessableEntityException(
-        'Your password reset oken has expired. Please try again',
-      );
-
-    // All checks have been completed. We can change the user’s password
-    const passwordHash = await hash(password, 10);
-    await manager.update(User, { id: userId }, { passwordHash });
-  }
-}
+import { ResetPasswordTransaction } from './transactions/reset-password.transaction';
+import { createHash } from 'crypto';
 
 @Injectable()
 export class AuthService {
@@ -253,7 +207,7 @@ export class AuthService {
     }
 
     const token = createRandomString();
-    const hashedToken = await hash(token, 10);
+    const hashedToken = createHash('sha256').update(token).digest('hex');
     const tokenEntity = this.recoveryToken.createEntity(
       {
         token: hashedToken,
@@ -272,10 +226,16 @@ export class AuthService {
   async resetPassword(
     password: string,
     token: string,
+    email: string,
     userIP: string,
     userAgent: string,
   ): Promise<void> {
-    const hashedToken = await hash(token, 10);
+    const user = await this.user.findByEmail(email);
+    // If not found or is banned return without providing any error to frontend
+    if (!user || user.state === UserState.BANNED) return;
+
+    // Check if the token exist
+    const hashedToken = createHash('sha256').update(token).digest('hex');
     const exist = await this.recoveryToken.findOne({
       token: hashedToken,
     });

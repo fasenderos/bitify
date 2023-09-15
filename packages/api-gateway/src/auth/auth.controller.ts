@@ -106,8 +106,8 @@ export class AuthController {
     @RealIP() userIP: string,
     @Headers('user-agent') userAgent: string,
   ): Promise<void> {
-    const { password, token } = dto;
-    return this.auth.resetPassword(password, token, userIP, userAgent);
+    const { password, token, email } = dto;
+    return this.auth.resetPassword(password, token, email, userIP, userAgent);
   }
 
   @Post('confirm-email')

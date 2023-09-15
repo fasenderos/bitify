@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { PasswordStrengthDto } from '../../common/dto';
 import { IsNotEmptyString } from '../../common/decorators/is-not-empty-string.decorator';
+import { IsEmail } from 'class-validator';
 
 export class ResetPasswordDto extends PasswordStrengthDto {
   @ApiProperty({
@@ -8,4 +9,9 @@ export class ResetPasswordDto extends PasswordStrengthDto {
   })
   @IsNotEmptyString()
   readonly token!: string;
+
+  @ApiProperty({ description: 'User email', example: 'email@mysite.com' })
+  @IsEmail()
+  @IsNotEmptyString()
+  readonly email!: string;
 }

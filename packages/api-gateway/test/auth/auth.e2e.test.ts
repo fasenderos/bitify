@@ -10,8 +10,13 @@ import { RecoveryTokensService } from '../../src/recovery-tokens/recovery-tokens
 import { CipherService } from '../../src/common/modules/cipher/cipher.service';
 import { buildServer } from '../helper';
 import { HttpClient } from '../http-client';
+import { SessionService } from '../../src/auth/session.service';
+import { TokenService } from '../../src/auth/token.service';
+import { ConfigService } from '@nestjs/config';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import { ResetPasswordTransaction } from '../../src/auth/transactions/reset-password.transaction';
 
-test('AuthController', async ({ equal, teardown }) => {
+test('AuthController', async ({ equal, mock, teardown }) => {
   const app = await buildServer();
   teardown(async () => await app.close());
   const http = new HttpClient(app);
@@ -101,15 +106,15 @@ test('AuthController', async ({ equal, teardown }) => {
   equal(disable2FA.statusCode, HttpStatus.OK);
 
   // Test Forgot Password
-  await testForgotPassword(user, app, equal, http);
+  const newPassword = await testForgotPassword(user, app, equal, mock, http);
 
-  // // Test login again with old password
-  // const oldPasswordLogin = await http.login(user.email, mockUser.password);
-  // equal(oldPasswordLogin.statusCode, HttpStatus.UNAUTHORIZED);
+  // Test login again with old password
+  const oldPasswordLogin = await http.login(user.email, mockUser.password);
+  equal(oldPasswordLogin.statusCode, HttpStatus.UNAUTHORIZED);
 
-  // // Test login again with new password
-  // const newPasswordLogin = await http.login(user.email, newPassword);
-  // equal(newPasswordLogin.statusCode, HttpStatus.OK);
+  // Test login again with new password
+  const newPasswordLogin = await http.login(user.email, newPassword);
+  equal(newPasswordLogin.statusCode, HttpStatus.OK);
 });
 
 test('AuthController missing Bearer token', async ({ equal, teardown }) => {
@@ -314,38 +319,34 @@ const testForgotPassword = async (
   user: User,
   app: NestFastifyApplication,
   equal: any,
+  mock: any,
   http: HttpClient,
 ): Promise<string> => {
-  // TODO help needed to mock the token so we can test the reset-password
-  // const mockRecoveryToken = 'somerecoverytoken';
-  // const resetPasswordTransaction = app.get(ResetPasswordTransaction);
-  // const recoveryToken = app.get(RecoveryTokensService);
-  // const sessionService = app.get(SessionService);
-  // const tokenService = app.get(TokenService);
-  // const userService = app.get(UsersService);
-  // const cipherService = app.get(CipherService);
-  // const configService = app.get(ConfigService);
-  // const eventEmitter = app.get(EventEmitter2);
-  // const { AuthService } = mock('../../src/auth/auth.service', {
-  //   '../../src/common/utils': {
-  //     createRandomString: () => {
-  //       console.log('called mocked createRandomString()');
-  //       return mockRecoveryToken;
-  //     },
-  //   },
-  // });
-  // const mockAuthService = new AuthService(
-  //   resetPasswordTransaction,
-  //   recoveryToken,
-  //   sessionService,
-  //   tokenService,
-  //   userService,
-  //   cipherService,
-  //   configService,
-  //   eventEmitter,
-  // );
+  const mockRecoveryToken = 'somerecoverytoken';
+  const resetPasswordTransaction = app.get(ResetPasswordTransaction);
+  const recoveryToken = app.get(RecoveryTokensService);
+  const sessionService = app.get(SessionService);
+  const tokenService = app.get(TokenService);
+  const userService = app.get(UsersService);
+  const cipherService = app.get(CipherService);
+  const configService = app.get(ConfigService);
+  const eventEmitter = app.get(EventEmitter2);
+  const { AuthService } = mock('../../src/auth/auth.service', {
+    '../../src/common/utils': {
+      createRandomString: () => mockRecoveryToken,
+    },
+  });
+  const mockAuthService = new AuthService(
+    resetPasswordTransaction,
+    recoveryToken,
+    sessionService,
+    tokenService,
+    userService,
+    cipherService,
+    configService,
+    eventEmitter,
+  );
 
-  // recoveryToken = mockUtils.createRandomString();
   // Test with mail that don't exists
   const wrongMail = await http.post('/auth/forgot-password', {
     email: 'notexist@email.com',
@@ -355,26 +356,14 @@ const testForgotPassword = async (
 
   // Test with valid mail. We need to use the mock for getting
   // the recovery token
-  const forgot = await http.post('/auth/forgot-password', {
-    email: user.email,
-  });
-  equal(forgot.statusCode, HttpStatus.OK);
-
-  // await mockAuthService.forgotPassword(user.email);
-
-  const recoveryTokens = await app
-    .get(RecoveryTokensService)
-    .find({ where: { userId: user.id } });
-  equal(recoveryTokens.length, 1, 'Should be only one token');
-  equal(recoveryTokens[0]!.token.length > 0, true);
-
-  const token = recoveryTokens[0]!.token;
+  await mockAuthService.forgotPassword(user.email);
 
   // Test reset password with wrong code
   const newPassword = 'Abcd1234';
   const wrongToken = await http.post('/auth/reset-password', {
-    password: newPassword,
     token: 'wrongRecoveryToken',
+    password: newPassword,
+    email: user.email,
   });
 
   equal(wrongToken.statusCode, HttpStatus.UNAUTHORIZED);
@@ -390,8 +379,9 @@ const testForgotPassword = async (
   await Promise.all(
     wrongPasswords.map((wrongPassword) =>
       http.post('/auth/reset-password', {
-        token: token,
+        token: mockRecoveryToken,
         password: wrongPassword,
+        email: user.email,
       }),
     ),
   ).then((responses) =>
@@ -399,10 +389,11 @@ const testForgotPassword = async (
   );
 
   // Test reset password with right token and right password
-  // const rightToken = await http.post('/auth/reset-password', {
-  //   token: mockRecoveryToken,
-  //   password: newPassword,
-  // });
-  // equal(rightToken.statusCode, HttpStatus.OK);
+  const rightToken = await http.post('/auth/reset-password', {
+    token: mockRecoveryToken,
+    password: newPassword,
+    email: user.email,
+  });
+  equal(rightToken.statusCode, HttpStatus.OK);
   return newPassword;
 };

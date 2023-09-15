@@ -5,7 +5,7 @@ import { AuthController } from './auth.controller';
 import { UsersModule } from '../users/users.module';
 import { SessionService } from './session.service';
 import { TokenService } from './token.service';
-import { AuthService, ResetPasswordTransaction } from './auth.service';
+import { AuthService } from './auth.service';
 import { Session } from './entities/session.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { JwtStrategy } from './strategies/jwt-strategy';
@@ -13,6 +13,7 @@ import { JwtRefreshStrategy } from './strategies/jwt-refresh.strategy';
 import { Jwt2FAStrategy } from './strategies/jwt-2fa.strategy';
 import { CipherModule } from '../common/modules/cipher/cipher.module';
 import { RecoveryTokensModule } from '../recovery-tokens/recovery-tokens.module';
+import { ResetPasswordTransaction } from './transactions/reset-password.transaction';
 
 @Module({
   imports: [
