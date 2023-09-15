@@ -88,7 +88,11 @@ test('AuthController', async ({ equal, mock, teardown }) => {
   equal(wrongLoginOtp.statusCode, HttpStatus.UNAUTHORIZED);
 
   // OTP Login with wrong OTP
-  const wrongOtp = await http.post('/auth/otp', { otp: '000000' }, accessToken);
+  const wrongOtp = await http.post(
+    '/auth/otp',
+    { otp: '000000' },
+    twoFactorToken,
+  );
   equal(wrongOtp.statusCode, HttpStatus.UNAUTHORIZED);
 
   // OTP Login with right TwoFactor Access Token
