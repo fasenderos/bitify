@@ -1,10 +1,19 @@
-import { Column, Entity } from 'typeorm';
-import { BaseEntity } from '../../base/base.entity';
+import {
+  Column,
+  CreateDateColumn,
+  DeleteDateColumn,
+  Entity,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+} from 'typeorm';
 import { Collections, UserState } from '../../common/constants';
 import { UserRole } from '../../app.roles';
 
 @Entity({ name: Collections.USERS })
-export class User extends BaseEntity {
+export class User {
+  @PrimaryGeneratedColumn('uuid')
+  id!: string;
+
   @Column({ unique: true })
   email!: string;
 
@@ -47,4 +56,13 @@ export class User extends BaseEntity {
 
   @Column('timestamptz', { nullable: true, select: false })
   verifyExpire!: Date | null;
+
+  @CreateDateColumn({ type: 'timestamptz', default: () => 'CURRENT_TIMESTAMP' })
+  createdAt!: Date;
+
+  @UpdateDateColumn({ type: 'timestamptz', default: () => 'CURRENT_TIMESTAMP' })
+  updatedAt!: Date;
+
+  @DeleteDateColumn({ type: 'timestamptz', nullable: true })
+  deletedAt!: Date | null;
 }

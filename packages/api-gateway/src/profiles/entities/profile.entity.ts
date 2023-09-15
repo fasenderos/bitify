@@ -3,9 +3,6 @@ import { BaseEntity } from '../../base/base.entity';
 
 @Entity({ name: 'profiles' })
 export class Profile extends BaseEntity {
-  @Column({ type: 'uuid' })
-  userId!: string;
-
   @Column('varchar', { nullable: true })
   firstName!: string | null;
 

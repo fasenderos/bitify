@@ -4,9 +4,6 @@ import { Collections } from '../../common/constants';
 
 @Entity({ name: Collections.RECOVERY_TOKENS })
 export class RecoveryToken extends BaseEntity {
-  @Column({ type: 'uuid' })
-  userId!: string;
-
   @Column()
   token!: string;
 

@@ -7,6 +7,7 @@ import {
 import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity';
 import { BaseEntity } from './base.entity';
 import { IBaseService } from './interfaces/base-service.interface';
+import { UnprocessableEntityException } from '@nestjs/common';
 
 export abstract class BaseService<
   Entity extends BaseEntity,
@@ -74,6 +75,10 @@ export abstract class BaseService<
     filter: FindOptionsWhere<Entity>,
     data: UpdateDTO,
   ): Promise<void> {
+    // @ts-expect-error Dto should not have userId, but we check anyway at runtime
+    if (data.userId)
+      throw new UnprocessableEntityException('Ownership can not be changed');
+
     await this.repo.update(filter, data);
   }
 
@@ -89,6 +94,10 @@ export abstract class BaseService<
     data: UpdateDTO,
     userId?: string,
   ): Promise<void> {
+    // @ts-expect-error Dto should not have userId, but we check anyway at runtime
+    if (data.userId)
+      throw new UnprocessableEntityException('Ownership can not be changed');
+
     await this.repo.update(
       {
         id,

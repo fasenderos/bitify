@@ -7,6 +7,7 @@ import { CreateApiKeyDto } from './dto/create-api-key.dto';
 import { UpdateApiKeyDto } from './dto/update-api-key.dto';
 import { randomBytes } from 'crypto';
 import { genSalt, hash } from 'bcrypt';
+import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity';
 
 @Injectable()
 export class ApiKeysService extends BaseService<
@@ -26,6 +27,9 @@ export class ApiKeysService extends BaseService<
     const { privateKeyEncrypted, publicKey, privateKey } =
       await this.generateAPIKeys();
 
+    // Set api key expiration
+    this.setExpiration(apikey);
+
     // Save in DB hashed secret key and crypted public key
     apikey.secret = privateKeyEncrypted;
     apikey.public = publicKey;
@@ -38,6 +42,24 @@ export class ApiKeysService extends BaseService<
     return apikey;
   }
 
+  override async updateById(
+    id: string,
+    data: UpdateApiKeyDto,
+    userId: string | undefined,
+  ): Promise<void> {
+    const update: QueryDeepPartialEntity<ApiKey> = { ...data };
+    // If userIps is `null`, means that user have
+    // removed the IPs, so we have to update the apikey expiration
+    if (data.userIps === null) this.setExpiration(update);
+    await this.repo.update(
+      {
+        id,
+        ...(userId ? { userId: userId } : {}),
+      },
+      update,
+    );
+  }
+
   async generateAPIKeys() {
     const privateBuffer = randomBytes(64);
     const privateKey = privateBuffer.toString('hex');
@@ -46,5 +68,12 @@ export class ApiKeysService extends BaseService<
     const salt = await genSalt(10);
     const privateKeyEncrypted = await hash(privateKey, salt);
     return { privateKeyEncrypted, publicKey, privateKey };
+  }
+
+  setExpiration(apiKey: QueryDeepPartialEntity<ApiKey>) {
+    if (apiKey.userIps && apiKey.userIps?.length > 0) return;
+    // Without IP apiKey expires in 90 days
+    // 60 * 60 * 24 * 90 * 1000 = 7_776_000_000
+    apiKey.expiresAt = new Date(Date.now() + 7_776_000_000);
   }
 }

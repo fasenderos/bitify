@@ -4,6 +4,7 @@ import {
   Get,
   HttpCode,
   HttpStatus,
+  NotFoundException,
   Param,
   ParseUUIDPipe,
   Patch,
@@ -102,9 +103,6 @@ export function ControllerFactory<
     ): Promise<Entity> {
       // Instantiating the entity
       const entity = this.service.createEntity(dto, user.id);
-      if (typeof this.service.beforeSave === 'function') {
-        await this.service.beforeSave(entity);
-      }
       // Create owned resource
       return this.service.save(entity);
     }
@@ -132,7 +130,11 @@ export function ControllerFactory<
       status: HttpStatus.FORBIDDEN,
       description: 'Forbidden - Not enough privileges to read the resource',
     })
-    findById(
+    @ApiResponse({
+      status: HttpStatus.NOT_FOUND,
+      description: 'Not found - The record not exist',
+    })
+    async findById(
       @Param('id', ParseUUIDPipe) id: string,
       @CurrentUser() user: User,
     ): Promise<Entity | null> {
@@ -141,10 +143,15 @@ export function ControllerFactory<
         return this.service.findById(id);
       }
       // Member can view owned resource only
-      return this.service.findOne({
+      const entity = await this.service.findOne({
         id,
         userId: user.id,
       } as unknown as FindOptionsWhere<Entity>);
+      // We don't wont to give much info, so always return not found
+      // even if the user is trying to get a resource of another user
+      if (!entity) throw new NotFoundException();
+
+      return entity;
     }
 
     /**
@@ -205,11 +212,21 @@ export function ControllerFactory<
       status: HttpStatus.FORBIDDEN,
       description: 'Forbidden - Not enough privileges to update the resource',
     })
+    @ApiResponse({
+      status: HttpStatus.NOT_FOUND,
+      description: 'Not found - The record not exist',
+    })
     async updateById(
       @Param('id', ParseUUIDPipe) id: string,
       @Body() dto: UpdateDTO,
       @CurrentUser() user: User,
     ): Promise<void> {
+      const entity = await this.service.findById(id);
+      // We don't wont to give much info, so always return not found
+      // even if the user is trying to update a resource of another user
+      if (!entity || (entity.userId && entity.userId !== user.id))
+        throw new NotFoundException();
+
       // Update owned resource
       await this.service.updateById(id, dto, user.id);
     }
@@ -238,10 +255,21 @@ export function ControllerFactory<
       status: HttpStatus.FORBIDDEN,
       description: 'Forbidden - Not enough privileges to delete the resource',
     })
+    @ApiResponse({
+      status: HttpStatus.NOT_FOUND,
+      description: 'Not found - The record not exist',
+    })
     async deleteById(
       @Param('id', ParseUUIDPipe) id: string,
       @CurrentUser() user: User,
     ): Promise<void> {
+      const entity = await this.service.findById(id);
+
+      // We don't wont to give much info, so always return not found
+      // even if the user is trying to delete a resource of another user
+      if (!entity || (entity.userId && entity.userId !== user.id))
+        throw new NotFoundException();
+
       // Delete owned resource
       await this.service.deleteById(id, user.id);
     }
