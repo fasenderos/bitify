@@ -50,19 +50,30 @@ export abstract class BaseService<
    * Finds first entity that matches given where condition.
    * If entity was not found in the database - returns null.
    * @param {FindOptionsWhere<Entity>} filter The matching conditions for finding
+   * @param {boolean} unselected Get all columns even those with select: false
    * @returns The entity that match the conditions or null.
    */
-  findOne(filter: FindOptionsWhere<Entity>): Promise<Entity | null> {
+  findOne(
+    filter: FindOptionsWhere<Entity>,
+    unselected = false,
+  ): Promise<Entity | null> {
+    if (unselected === true) {
+      return this.repo.findOne({
+        select: this.getAllTableColumns(),
+        where: filter,
+      });
+    }
     return this.repo.findOneBy(filter);
   }
 
   /**
    * Find entity by ID. If entity was not found in the database - returns null.
    * @param {string} id The ID of the entity
+   * @param {boolean} unselected Get all columns even those with select: false
    * @returns The entity that match the conditions or null.
    */
-  findById(id: string): Promise<Entity | null> {
-    return this.findOne({ id } as FindOptionsWhere<Entity>);
+  findById(id: string, unselected = false): Promise<Entity | null> {
+    return this.findOne({ id } as FindOptionsWhere<Entity>, unselected);
   }
 
   /**
@@ -131,5 +142,11 @@ export abstract class BaseService<
       id,
       ...(userId ? { userId: userId } : {}),
     } as FindOptionsWhere<Entity>);
+  }
+
+  private getAllTableColumns(): (keyof Entity)[] {
+    return this.repo.metadata.columns.map(
+      (col) => col.propertyName,
+    ) as (keyof Entity)[];
   }
 }

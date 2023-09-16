@@ -46,6 +46,7 @@
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.0",
     "cryptr": "^6.2.0",
+    "fastify": "^4.23.2",
     "handlebars": "^4.7.8",
     "lodash": "^4.17.21",
     "nanoid": "^3.0.0",

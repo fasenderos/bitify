@@ -10,8 +10,8 @@ export interface IBaseService<
   createEntity(data: C, userId: string): T;
   save(data: T): Promise<T>;
   find(options?: FindManyOptions<T>): Promise<T[]>;
-  findOne(filter: FindOptionsWhere<T>): Promise<T | null>;
-  findById(id: string): Promise<T | null>;
+  findOne(filter: FindOptionsWhere<T>, unselected?: boolean): Promise<T | null>;
+  findById(id: string, unselected?: boolean): Promise<T | null>;
   update(filter: FindOptionsWhere<T>, data: U): Promise<void>;
   updateById(id: string, data: U, userId?: string): Promise<void>;
   delete(filter: FindOptionsWhere<T>, soft?: boolean): Promise<void>;

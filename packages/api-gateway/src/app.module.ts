@@ -13,6 +13,7 @@ import { ActivitiesModule } from './activities/activities.module';
 import { AccessControlModule } from 'nest-access-control';
 import { roles } from './app.roles';
 import { ApiKeysModule } from './api-keys/api-keys.module';
+import { CipherModule } from './common/modules/cipher/cipher.module';
 
 @Module({
   imports: [
@@ -64,6 +65,7 @@ import { ApiKeysModule } from './api-keys/api-keys.module';
     ActivitiesModule,
     ApiKeysModule,
     AuthModule,
+    CipherModule,
     UsersModule,
     TerminusModule,
   ],

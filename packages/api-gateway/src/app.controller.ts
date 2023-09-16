@@ -1,4 +1,11 @@
-import { Controller, Get } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
 import { EmptyObject } from '../typings/common';
 import {
   HealthCheck,
@@ -7,6 +14,7 @@ import {
   TypeOrmHealthIndicator,
 } from '@nestjs/terminus';
 import { ApiOkResponse, ApiOperation } from '@nestjs/swagger';
+import { ApiKeyGuard } from './auth/guards/api-key.guard';
 
 @Controller()
 export class AppController {
@@ -38,5 +46,19 @@ export class AppController {
     return await this.health.check([
       async () => await this.db.pingCheck('typeorm'),
     ]);
+  }
+
+  @Get('api/test-get')
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(ApiKeyGuard)
+  testGetApiKeyAuth() {
+    return 'OK';
+  }
+
+  @Post('api/test-post')
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(ApiKeyGuard)
+  testPostApiKeyAuth() {
+    return 'OK';
   }
 }

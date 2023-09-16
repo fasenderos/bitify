@@ -5,9 +5,9 @@ import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateApiKeyDto } from './dto/create-api-key.dto';
 import { UpdateApiKeyDto } from './dto/update-api-key.dto';
-import { hash } from 'bcrypt';
 import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity';
 import { createRandomString } from '../common/utils';
+import { CipherService } from '../common/modules/cipher/cipher.service';
 
 @Injectable()
 export class ApiKeysService extends BaseService<
@@ -18,20 +18,20 @@ export class ApiKeysService extends BaseService<
   constructor(
     @InjectRepository(ApiKey)
     repo: Repository<ApiKey>,
+    private readonly cipher: CipherService,
   ) {
     super(repo);
   }
 
   override async save(apikey: ApiKey) {
     // Create Public and Private Api Keys
-    const { privateKeyEncrypted, publicKey, privateKey } =
-      await this.generateAPIKeys();
+    const { publicKey, privateKey } = await this.generateAPIKeys();
 
     // Set api key expiration
     this.setExpiration(apikey);
 
-    // Save in DB hashed secret key and crypted public key
-    apikey.secret = privateKeyEncrypted;
+    // Save in DB crypted secret and public key
+    apikey.secret = this.cipher.encrypt(privateKey);
     apikey.public = publicKey;
 
     // Currently only HMAC, in the future we may also support RSA
@@ -66,8 +66,7 @@ export class ApiKeysService extends BaseService<
   async generateAPIKeys() {
     const publicKey = createRandomString(18);
     const privateKey = createRandomString(36);
-    const privateKeyEncrypted = await hash(privateKey, 10);
-    return { privateKeyEncrypted, publicKey, privateKey };
+    return { publicKey, privateKey };
   }
 
   setExpiration(apiKey: QueryDeepPartialEntity<ApiKey>) {
