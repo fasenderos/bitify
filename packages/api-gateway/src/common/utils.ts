@@ -1,9 +1,23 @@
-import { randomBytes } from 'crypto';
+import { customAlphabet } from 'nanoid';
 import { isPlainObject } from 'lodash';
+import sanitizeHtml from 'sanitize-html';
+
+const lowercase = 'abcdefghijklmnopqrstuvwxyz';
+const uppercase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+const numbers = '0123456789';
+const alphanumeric = numbers + lowercase + uppercase;
+const nanoid = customAlphabet(alphanumeric);
+
+export const sanitize = (value: string): string => {
+  return sanitizeHtml(value, {
+    allowedTags: [],
+    allowedAttributes: {},
+  });
+};
 
 export const trim = (value: any, exclude?: string): any => {
   if (typeof value === 'string') {
-    return value.trim();
+    return sanitize(value).trim();
   }
   if (Array.isArray(value)) {
     value.forEach((element, index) => {
@@ -21,7 +35,7 @@ export const trim = (value: any, exclude?: string): any => {
 };
 
 export const createRandomString = (length = 32): string => {
-  return randomBytes(length).toString('hex');
+  return nanoid(length);
 };
 
 export const isExpired = (date: Date, expireInMs: number): boolean => {

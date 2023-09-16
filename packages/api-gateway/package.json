@@ -48,6 +48,7 @@
     "cryptr": "^6.2.0",
     "handlebars": "^4.7.8",
     "lodash": "^4.17.21",
+    "nanoid": "^3.0.0",
     "nest-access-control": "^3.0.0",
     "nestjs-pino": "^3.3.0",
     "nestjs-real-ip": "^3.0.1",
@@ -59,6 +60,7 @@
     "qrcode": "^1.5.3",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.8.1",
+    "sanitize-html": "^2.11.0",
     "timestring": "^7.0.0",
     "typeorm": "^0.3.17",
     "undici": "^5.22.1"
@@ -73,6 +75,7 @@
     "@types/passport-jwt": "^3.0.9",
     "@types/pg": "^8.10.2",
     "@types/qrcode": "^1.5.1",
+    "@types/sanitize-html": "^2.9.0",
     "@types/tap": "^15.0.8",
     "@types/timestring": "^6.0.2",
     "@typescript-eslint/eslint-plugin": "^6.4.1",

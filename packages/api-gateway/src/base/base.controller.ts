@@ -26,6 +26,7 @@ import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity
 import { ApiBearerAuth, ApiResponse } from '@nestjs/swagger';
 import { User } from '../users/entities/user.entity';
 import { ACGuard, UseRoles } from 'nest-access-control';
+import { SanitizeTrimPipe } from '../common/pipes/sanitize-trim.pipe';
 
 /**
  * Every controller in the application can use the ControllerFactory in order
@@ -84,6 +85,7 @@ export function ControllerFactory<
     @UseGuards(JwtGuard, ACGuard)
     @UseRoles({ resource, action: 'create', possession: 'own' })
     @UsePipes(createPipe)
+    @UsePipes(SanitizeTrimPipe)
     @ApiBearerAuth()
     @ApiResponse({
       status: HttpStatus.CREATED,
@@ -199,6 +201,7 @@ export function ControllerFactory<
     @UseGuards(JwtGuard, ACGuard)
     @UseRoles({ resource, action: 'update', possession: 'own' })
     @UsePipes(updatePipe)
+    @UsePipes(SanitizeTrimPipe)
     @ApiBearerAuth()
     @ApiResponse({
       status: HttpStatus.NO_CONTENT,

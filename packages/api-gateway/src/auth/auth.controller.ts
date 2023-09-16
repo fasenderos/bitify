@@ -21,7 +21,7 @@ import { Verify2FADto } from './dto/verify-2fa.dto';
 import { Jwt2FAGuard } from './guards/jwt-2fa.guard';
 import { VerifyOTPDto } from './dto/verify-otp.dto';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { TrimPipe } from '../common/pipes/trim.pipe';
+import { SanitizeTrimPipe } from '../common/pipes/sanitize-trim.pipe';
 import { I2FAResponse, IEnable2FAResponse, ILoginResponse } from './interfaces';
 import {
   ConfirmEmailDto,
@@ -36,7 +36,7 @@ export class AuthController {
   constructor(private readonly auth: AuthService) {}
 
   @Post('register')
-  @UsePipes(new TrimPipe())
+  @UsePipes(new SanitizeTrimPipe())
   register(
     @Body(ValidationPipe) dto: RegisterDto,
     @RealIP() userIP: string,
@@ -53,7 +53,7 @@ export class AuthController {
   }
 
   @Post('login')
-  @UsePipes(new TrimPipe())
+  @UsePipes(new SanitizeTrimPipe())
   @HttpCode(200)
   login(
     @Body(ValidationPipe) dto: LoginDto,
@@ -83,7 +83,7 @@ export class AuthController {
   @ApiBearerAuth()
   @UseGuards(Jwt2FAGuard)
   @Post('otp')
-  @UsePipes(new TrimPipe())
+  @UsePipes(new SanitizeTrimPipe())
   @HttpCode(200)
   async verifyOTP(
     @CurrentUser('id') userId: string,
@@ -137,7 +137,7 @@ export class AuthController {
   @ApiBearerAuth()
   @UseGuards(JwtGuard)
   @Post('verify2fa')
-  @UsePipes(new TrimPipe())
+  @UsePipes(new SanitizeTrimPipe())
   @HttpCode(200)
   verify2FA(
     @CurrentUser('id') userId: string,
@@ -150,7 +150,7 @@ export class AuthController {
   @ApiBearerAuth()
   @UseGuards(JwtGuard)
   @Post('disable2fa')
-  @UsePipes(new TrimPipe())
+  @UsePipes(new SanitizeTrimPipe())
   @HttpCode(200)
   async disable2FA(
     @CurrentUser('id') userId: string,
