@@ -1,13 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { BaseService } from '../base/base.service';
-import { ApiKey } from './entities/api-key.entity';
+import { ApiKey, ApiKeyType } from './entities/api-key.entity';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateApiKeyDto } from './dto/create-api-key.dto';
 import { UpdateApiKeyDto } from './dto/update-api-key.dto';
-import { randomBytes } from 'crypto';
-import { genSalt, hash } from 'bcrypt';
+import { hash } from 'bcrypt';
 import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity';
+import { createRandomString } from '../common/utils';
 
 @Injectable()
 export class ApiKeysService extends BaseService<
@@ -33,6 +33,9 @@ export class ApiKeysService extends BaseService<
     // Save in DB hashed secret key and crypted public key
     apikey.secret = privateKeyEncrypted;
     apikey.public = publicKey;
+
+    // Currently only HMAC, in the future we may also support RSA
+    apikey.type = ApiKeyType.HMAC;
     await this.repo.save(apikey);
 
     // Return the real public and secret keys to the user.
@@ -61,19 +64,18 @@ export class ApiKeysService extends BaseService<
   }
 
   async generateAPIKeys() {
-    const privateBuffer = randomBytes(64);
-    const privateKey = privateBuffer.toString('hex');
-    const publicBuffer = randomBytes(64);
-    const publicKey = publicBuffer.toString('hex');
-    const salt = await genSalt(10);
-    const privateKeyEncrypted = await hash(privateKey, salt);
+    const publicKey = createRandomString(18);
+    const privateKey = createRandomString(36);
+    const privateKeyEncrypted = await hash(privateKey, 10);
     return { privateKeyEncrypted, publicKey, privateKey };
   }
 
   setExpiration(apiKey: QueryDeepPartialEntity<ApiKey>) {
-    if (apiKey.userIps && apiKey.userIps?.length > 0) return;
     // Without IP apiKey expires in 90 days
-    // 60 * 60 * 24 * 90 * 1000 = 7_776_000_000
-    apiKey.expiresAt = new Date(Date.now() + 7_776_000_000);
+    const expiration =
+      (apiKey.userIps ?? []).length > 0
+        ? new Date(0) // '1970-01-01T00:00:00.000Z'
+        : new Date(Date.now() + 7_776_000_000); // 60 * 60 * 24 * 90 * 1000 = 7_776_000_000
+    apiKey.expiresAt = expiration;
   }
 }

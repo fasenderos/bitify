@@ -1,8 +1,13 @@
-import { ApiPropertyOptional } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { IsArray, IsEnum, IsIP, IsOptional, ValidateIf } from 'class-validator';
 import { ApiKeyAbility } from '../../app.roles';
+import { IsNotEmptyString } from '../../common/decorators/is-not-empty-string.decorator';
 
 export class CreateApiKeyDto {
+  @ApiProperty({ description: 'Name for the API key' })
+  @IsNotEmptyString()
+  readonly notes!: string;
+
   @ApiPropertyOptional({ description: 'List of trusted IPs' })
   @IsArray()
   @IsIP(undefined, { each: true })

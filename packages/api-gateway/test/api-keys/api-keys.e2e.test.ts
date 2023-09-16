@@ -14,6 +14,7 @@ test('shoul create api key', async ({ equal, teardown }) => {
   const auth = login.body.accessToken;
 
   const mockBody = {
+    notes: 'My Api Key',
     userIps: ['123.123.123.123'],
     spot: 'read',
     wallet: 'read-write',
@@ -26,6 +27,7 @@ test('shoul create api key', async ({ equal, teardown }) => {
   const wrongBody = await http.post(
     '/api_keys',
     {
+      notes: mockBody.notes,
       userIps: mockBody.userIps,
     },
     auth,
@@ -39,11 +41,13 @@ test('shoul create api key', async ({ equal, teardown }) => {
   equal(statusCode, HttpStatus.CREATED);
   equal(first.public.length > 0, true);
   equal(first.secret.length > 0, true);
-  equal(first.expiresAt, null); // UserIP are set
+  equal(first.notes, mockBody.notes);
+  equal(new Date(first.expiresAt).getTime(), 0); // UserIP are set
 
   response = await http.post(
     '/api_keys',
     {
+      notes: mockBody.notes,
       spot: mockBody.spot,
     },
     auth,
@@ -53,8 +57,9 @@ test('shoul create api key', async ({ equal, teardown }) => {
   equal(statusCode, HttpStatus.CREATED);
   equal(second.public.length > 0, true);
   equal(second.secret.length > 0, true);
+  equal(second.notes, mockBody.notes);
   // When there is no ip, api key expires in 90 days
-  equal(second.expiresAt != null, true);
+  equal(new Date(second.expiresAt).getTime() > Date.now(), true);
 });
 
 test('shoul find owned api keys', async ({ equal, teardown }) => {
@@ -70,6 +75,7 @@ test('shoul find owned api keys', async ({ equal, teardown }) => {
   const auth1 = login1.body.accessToken;
   const auth2 = login2.body.accessToken;
   const mockBody = {
+    notes: 'My Api Key',
     userIps: ['123.123.123.123'],
     spot: 'read',
     wallet: 'read-write',
@@ -161,6 +167,7 @@ test('shoul update owned api keys', async ({ equal, teardown }) => {
   const auth1 = login1.body.accessToken;
   const auth2 = login2.body.accessToken;
   const mockBody = {
+    notes: 'My Api Key',
     userIps: ['123.123.123.123'],
     spot: 'read',
     wallet: 'read-write',
@@ -177,8 +184,8 @@ test('shoul update owned api keys', async ({ equal, teardown }) => {
   // User should be able to update only owned apikey by id
   {
     // User 1
-    // Before the update expiresAt should be null
-    equal(apiKeyUser1.body.expiresAt, null);
+    // Before the update expiresAt should be 0
+    equal(new Date(apiKeyUser1.body.expiresAt).getTime(), 0);
     // After the update expiresAt should be a date
     const res = await http.patch(
       `/api_keys/${apiKeyUser1.body.id}`,
@@ -189,12 +196,12 @@ test('shoul update owned api keys', async ({ equal, teardown }) => {
     const updated = await http.get(`/api_keys/${apiKeyUser1.body.id}`, auth1);
     equal(updated.body.spot, mockUpdate.spot);
     equal(updated.body.userIps, null);
-    equal(updated.body.expiresAt != null, true);
+    equal(new Date(updated.body.expiresAt).getTime() > Date.now(), true);
   }
   {
     // User 2
-    // Before the update expiresAt should be null
-    equal(apiKeyUser2.body.expiresAt, null);
+    // Before the update expiresAt should be 0
+    equal(new Date(apiKeyUser2.body.expiresAt).getTime(), 0);
     // After the update expiresAt should be a date
     const res = await http.patch(
       `/api_keys/${apiKeyUser2.body.id}`,
@@ -205,7 +212,7 @@ test('shoul update owned api keys', async ({ equal, teardown }) => {
     const updated = await http.get(`/api_keys/${apiKeyUser2.body.id}`, auth2);
     equal(updated.body.spot, mockUpdate.spot);
     equal(updated.body.userIps, null);
-    equal(updated.body.expiresAt != null, true);
+    equal(new Date(updated.body.expiresAt).getTime() > Date.now(), true);
   }
 
   // Should not able to update api key of other user by id
@@ -242,6 +249,7 @@ test('shoul delete owned api keys', async ({ equal, teardown }) => {
   const auth1 = login1.body.accessToken;
   const auth2 = login2.body.accessToken;
   const mockBody = {
+    notes: 'My Api Key',
     userIps: ['123.123.123.123'],
     spot: 'read',
     wallet: 'read-write',
