@@ -8,7 +8,7 @@ import { User } from '../../src/users/entities/user.entity';
 import { UserState } from '../../src/common/constants';
 import { RecoveryTokensService } from '../../src/recovery-tokens/recovery-tokens.service';
 import { CipherService } from '../../src/common/modules/cipher/cipher.service';
-import { buildServer } from '../helper';
+import { buildServer, createUser } from '../helper';
 import { HttpClient } from '../http-client';
 import { SessionService } from '../../src/auth/session.service';
 import { TokenService } from '../../src/auth/token.service';
@@ -76,10 +76,7 @@ test('AuthController', async ({ equal, mock, teardown }) => {
   const logout = await http.get('/auth/logout', accessToken);
   equal(logout.statusCode, HttpStatus.OK);
 
-  const reLogin = await http.post('/auth/login', {
-    email: user.email,
-    password: mockUser.password,
-  });
+  const reLogin = await http.login(user.email, mockUser.password);
   const { twoFactorToken } = reLogin.body;
 
   // OTP Login with wrong accessToken
@@ -94,6 +91,43 @@ test('AuthController', async ({ equal, mock, teardown }) => {
     twoFactorToken,
   );
   equal(wrongOtp.statusCode, HttpStatus.UNAUTHORIZED);
+
+  // Test wrong OTP configuration
+  {
+    const userService = app.get(UsersService);
+    const userPrev = await userService.getUserWithUnselected({ id: user.id });
+    {
+      // Set user as deleted so the user can't be found
+      await userService.updateById(user.id, { deletedAt: new Date() });
+      // Try to perform a valid OTP Login
+      const loginOtp = await http.post('/auth/otp', { otp }, twoFactorToken);
+      equal(loginOtp.statusCode, HttpStatus.UNAUTHORIZED);
+    }
+    {
+      // Set otpSecret to null and restore deleted
+      await userService.updateById(user.id, {
+        deletedAt: null,
+        otpSecret: null,
+      });
+      // Try to perform a valid OTP Login
+      const loginOtp = await http.post('/auth/otp', { otp }, twoFactorToken);
+      equal(loginOtp.statusCode, HttpStatus.UNAUTHORIZED);
+    }
+    {
+      // Set otp to disabled and restore otpSecret
+      await userService.updateById(user.id, {
+        otp: false,
+        otpSecret: userPrev?.otpSecret as string,
+      });
+      // Try to perform a valid OTP Login
+      const loginOtp = await http.post('/auth/otp', { otp }, twoFactorToken);
+      equal(loginOtp.statusCode, HttpStatus.UNAUTHORIZED);
+    }
+    // Restore user otp enabled so the OTP test can continue
+    await userService.updateById(user.id, {
+      otp: true,
+    });
+  }
 
   // OTP Login with right TwoFactor Access Token
   const loginOtp = await http.post('/auth/otp', { otp }, twoFactorToken);
@@ -161,21 +195,41 @@ const testRegisterUser = async (
   ];
   await Promise.all(
     wrongPasswords.map((wrongPassword) =>
-      http.post('/auth/register', { email: mockUser.email, wrongPassword }),
+      http.post('/auth/register', {
+        email: mockUser.email,
+        wrongPassword,
+        recaptchaToken: 'somerecaptchatoken',
+      }),
     ),
   ).then((responses) =>
     responses.map((res) => equal(res.statusCode, HttpStatus.BAD_REQUEST)),
   );
 
+  {
+    // When env RECAPTCHA_PRIVATE_KEY is set, the registration should fail without a recaptcha token
+    if (process.env['RECAPTCHA_PRIVATE_KEY']) {
+      const register = await http.post('/auth/register', {
+        email,
+        password,
+      });
+      equal(register.statusCode, HttpStatus.BAD_REQUEST);
+    }
+  }
+
   // Register user
   const register = await http.post('/auth/register', {
     email,
     password,
+    recaptchaToken: 'somerecaptchatoken',
   });
   equal(register.statusCode, HttpStatus.CREATED);
 
   // Check only one user with same email
-  const retryRegister = await http.post('/auth/register', { email, password });
+  const retryRegister = await http.post('/auth/register', {
+    email,
+    password,
+    recaptchaToken: 'somerecaptchatoken',
+  });
   equal(retryRegister.statusCode, HttpStatus.CONFLICT);
 
   // Check login before email verification
@@ -260,6 +314,36 @@ const testConfirmEmail = async (
   });
   equal(wrongCode.statusCode, HttpStatus.UNAUTHORIZED);
 
+  {
+    // Test verification code expired
+    const userService = app.get(UsersService);
+    {
+      // Test when verifyExpire is null
+      await userService.updateById(user.id, { verifyExpire: null });
+      const confirm = await http.post('/auth/confirm-email', {
+        email: user.email,
+        code,
+      });
+      equal(confirm.statusCode, HttpStatus.UNAUTHORIZED);
+    }
+    {
+      // Test when verifyExpire is date lower then 8 minutes
+      // Verification code expires in 8 minutes
+      await userService.updateById(user.id, {
+        verifyExpire: new Date(Date.now() - 60 * 9 * 1000),
+      });
+      const confirm = await http.post('/auth/confirm-email', {
+        email: user.email,
+        code,
+      });
+      equal(confirm.statusCode, HttpStatus.UNAUTHORIZED);
+    }
+    // Restore previous expires
+    await userService.updateById(user.id, {
+      verifyExpire: user.verifyExpire,
+    });
+  }
+
   // Test right confirm email code
   const confirm = await http.post('/auth/confirm-email', {
     email: user.email,
@@ -315,6 +399,17 @@ const testLogin = async (
 
   // Restore previouse user state
   await userService.updateById(id, { state: prevState });
+
+  {
+    // When env RECAPTCHA_PRIVATE_KEY is set, login should fail without a recaptcha token
+    if (process.env['RECAPTCHA_PRIVATE_KEY']) {
+      const register = await http.post('/auth/login', {
+        email,
+        password,
+      });
+      equal(register.statusCode, HttpStatus.BAD_REQUEST);
+    }
+  }
 
   // Successful login
   const login = await http.login(email, password);
@@ -388,6 +483,25 @@ const testForgotPassword = async (
   });
   // Even with wrong mail, the status code is always 200
   equal(wrongMail.statusCode, HttpStatus.OK);
+
+  // Test multiple forgot password reset
+  {
+    const { user: newUser } = await createUser(app);
+    // After 5 request user must be banned
+    let i = 6;
+    while (i--) {
+      await http.post('/auth/forgot-password', {
+        email: newUser.email,
+      });
+    }
+    const bannedUser = await userService.findById(newUser.id);
+    equal(bannedUser?.state, UserState.BANNED);
+    // Now user is banned and api return always status 200
+    const response = await http.post('/auth/forgot-password', {
+      email: user.email,
+    });
+    equal(response.statusCode, HttpStatus.OK);
+  }
 
   // Test with valid mail. We need to use the mock for getting
   // the recovery token

@@ -21,11 +21,11 @@ export const buildServer = async (): Promise<NestFastifyApplication> => {
   );
   await app.init();
   await app.getHttpAdapter().getInstance().ready();
-  await clearDatabase(app);
   return app;
 };
 
-export const clearDatabase = async (app: NestFastifyApplication) => {
+export const clearDatabase = async () => {
+  const app = await buildServer();
   const dataSource = app.get(DataSource);
   const entities = dataSource.entityMetadatas;
 
@@ -54,7 +54,7 @@ export async function createUser(
     'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36';
   const authService = app.get(AuthService);
   const userService = app.get(UsersService);
-  await authService.register(email, password, ip, ua);
+  await authService.register(email, password, ip, ua, 'somerecaptchatoken');
   const user = (await userService.findByEmail(email)) as unknown as User;
   await userService.updateById(user.id, {
     state: UserState.ACTIVE,

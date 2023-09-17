@@ -171,6 +171,9 @@ importers:
       '@typescript-eslint/parser':
         specifier: ^6.4.1
         version: 6.5.0(eslint@8.48.0)(typescript@5.2.2)
+      dotenv:
+        specifier: ^16.3.1
+        version: 16.3.1
       eslint:
         specifier: ^8.47.0
         version: 8.48.0
@@ -188,7 +191,7 @@ importers:
         version: 0.5.21
       tap:
         specifier: ^16.3.7
-        version: 16.3.8(ts-node@10.9.1)(typescript@5.2.2)
+        version: 16.3.7(ts-node@10.9.1)(typescript@5.2.2)
       ts-loader:
         specifier: ^9.4.3
         version: 9.4.4(typescript@5.2.2)(webpack@5.88.2)
@@ -2798,7 +2801,6 @@ packages:
   /dotenv@16.3.1:
     resolution: {integrity: sha512-IPzF4w4/Rd94bA9imS68tZBaYyBWSCE47V1RGuMrB94iyTOIEwRmVL2x/4An+6mETpLrKJ5hQkB8W4kFAadeIQ==}
     engines: {node: '>=12'}
-    dev: false
 
   /eastasianwidth@0.2.0:
     resolution: {integrity: sha512-I88TYZWc9XiYHRQ4/3c5rjjfgkjhLyW2luGIheGERbNQ6OY7yTybanSpDXZa8y7VUP9YmDcYa+eyq4ca7iLqWA==}
@@ -6871,6 +6873,58 @@ packages:
     dependencies:
       yaml: 1.10.2
     dev: true
+
+  /tap@16.3.7(ts-node@10.9.1)(typescript@5.2.2):
+    resolution: {integrity: sha512-AaovVsfXVKcIf9eD1NxgwIqSDz5LauvybTpS6bjAKVYqz3+iavHC1abwxTkXmswb2n7eq8qKLt8DvY3D6iWcYA==}
+    engines: {node: '>=12'}
+    hasBin: true
+    peerDependencies:
+      coveralls: ^3.1.1
+      flow-remove-types: '>=2.112.0'
+      ts-node: '>=8.5.2'
+      typescript: '>=3.7.2'
+    peerDependenciesMeta:
+      coveralls:
+        optional: true
+      flow-remove-types:
+        optional: true
+      ts-node:
+        optional: true
+      typescript:
+        optional: true
+    dependencies:
+      chokidar: 3.5.3
+      findit: 2.0.0
+      foreground-child: 2.0.0
+      fs-exists-cached: 1.0.0
+      glob: 7.2.3
+      isexe: 2.0.0
+      istanbul-lib-processinfo: 2.0.3
+      jackspeak: 1.4.2
+      libtap: 1.4.1
+      minipass: 3.3.6
+      mkdirp: 1.0.4
+      nyc: 15.1.0
+      opener: 1.5.2
+      rimraf: 3.0.2
+      signal-exit: 3.0.7
+      source-map-support: 0.5.21
+      tap-mocha-reporter: 5.0.3
+      tap-parser: 11.0.2
+      tap-yaml: 1.0.2
+      tcompare: 5.0.7
+      ts-node: 10.9.1(@types/node@20.5.7)(typescript@5.2.2)
+      typescript: 5.2.2
+      which: 2.0.2
+    transitivePeerDependencies:
+      - supports-color
+    dev: true
+    bundledDependencies:
+      - ink
+      - treport
+      - '@types/react'
+      - '@isaacs/import-jsx'
+      - react
 
   /tap@16.3.8(ts-node@10.9.1)(typescript@5.2.2):
     resolution: {integrity: sha512-ARpCLtOFST37MholnZm7JMFikGq0x/T9uBdZH83iuddPNgwDTZQiD8+4x7VABUfVWS0ozKUkmHZ5OOzMI3fLPg==}

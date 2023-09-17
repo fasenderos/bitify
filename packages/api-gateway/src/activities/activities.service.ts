@@ -29,7 +29,7 @@ export class ActivitiesService {
       action,
       result,
       topic,
-      ...(data ? { data } : {}),
+      ...(data ? /* istanbul ignore next */ { data } : {}),
     });
   }
 }

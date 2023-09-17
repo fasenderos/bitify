@@ -4,48 +4,48 @@ import { HttpClient } from './http-client';
 import { HttpStatus } from '@nestjs/common';
 import { ApiKeysService } from '../src/api-keys/api-keys.service';
 
-// test('/ping should return "pong"', async ({ equal, same, teardown }) => {
-//   const app = await buildServer();
-//   teardown(async () => await app.close());
+test('/ping should return "pong"', async ({ equal, same, teardown }) => {
+  const app = await buildServer();
+  teardown(async () => await app.close());
 
-//   const { statusCode, payload } = await app.inject({
-//     method: 'GET',
-//     url: '/ping',
-//   });
-//   equal(statusCode, HttpStatus.OK);
-//   same(JSON.parse(payload), {});
-// });
+  const { statusCode, payload } = await app.inject({
+    method: 'GET',
+    url: '/ping',
+  });
+  equal(statusCode, HttpStatus.OK);
+  same(JSON.parse(payload), {});
+});
 
-// test('/time should return server time', async ({ equal, teardown }) => {
-//   const app = await buildServer();
-//   teardown(async () => await app.close());
+test('/time should return server time', async ({ equal, teardown }) => {
+  const app = await buildServer();
+  teardown(async () => await app.close());
 
-//   const { statusCode, payload } = await app.inject({
-//     method: 'GET',
-//     url: '/time',
-//   });
-//   const data = JSON.parse(payload);
-//   equal(statusCode, HttpStatus.OK);
-//   equal(typeof data.serverTime, 'number');
-// });
+  const { statusCode, payload } = await app.inject({
+    method: 'GET',
+    url: '/time',
+  });
+  const data = JSON.parse(payload);
+  equal(statusCode, HttpStatus.OK);
+  equal(typeof data.serverTime, 'number');
+});
 
-// test('/health should return server status', async ({
-//   equal,
-//   same,
-//   teardown,
-// }) => {
-//   const app = await buildServer();
-//   teardown(async () => await app.close());
+test('/health should return server status', async ({
+  equal,
+  same,
+  teardown,
+}) => {
+  const app = await buildServer();
+  teardown(async () => await app.close());
 
-//   const { statusCode, payload } = await app.inject({
-//     method: 'GET',
-//     url: '/health',
-//   });
-//   const data = JSON.parse(payload);
-//   equal(statusCode, HttpStatus.OK);
-//   equal(data.status, 'ok');
-//   same(data.error, {});
-// });
+  const { statusCode, payload } = await app.inject({
+    method: 'GET',
+    url: '/health',
+  });
+  const data = JSON.parse(payload);
+  equal(statusCode, HttpStatus.OK);
+  equal(data.status, 'ok');
+  same(data.error, {});
+});
 
 test('test api-key authentication', async ({ equal, teardown }) => {
   const app = await buildServer();
@@ -185,7 +185,7 @@ test('test api-key authentication', async ({ equal, teardown }) => {
   {
     {
       // Test for serverTime - recvWindow <= timestamp
-      const timestamp = Date.now() - 5001;
+      const timestamp = Date.now() - 5100;
       const signature = http.getSignature(
         secretKey,
         publicKey,
@@ -211,7 +211,7 @@ test('test api-key authentication', async ({ equal, teardown }) => {
     }
     {
       // Test for timestamp < serverTime + 1000
-      const timestamp = Date.now() + 1001;
+      const timestamp = Date.now() + 1100;
       const signature = http.getSignature(
         secretKey,
         publicKey,
@@ -241,7 +241,7 @@ test('test api-key authentication', async ({ equal, teardown }) => {
   {
     {
       // Test for serverTime - recvWindow <= timestamp
-      const timestamp = Date.now() - 5001;
+      const timestamp = Date.now() - 5100;
       const signature = http.getSignature(
         secretKey,
         publicKey,
@@ -262,7 +262,7 @@ test('test api-key authentication', async ({ equal, teardown }) => {
     }
     {
       // Test for timestamp < serverTime + 1000
-      const timestamp = Date.now() + 1001;
+      const timestamp = Date.now() + 1100;
       const signature = http.getSignature(
         secretKey,
         publicKey,

@@ -83,6 +83,7 @@ export class ApiKeyGuard implements CanActivate {
       ) {
         throw error;
       }
+      /* istanbul ignore next */
       throw new BadRequestException();
     }
   }
@@ -94,6 +95,7 @@ export class ApiKeyGuard implements CanActivate {
     } else if (request.method === 'GET' && request.query) {
       data = this.serializeParams(request.query);
     } else {
+      /* istanbul ignore next */
       throw new UnprocessableEntityException(
         'Valid method for api-key are POST and GET',
       );

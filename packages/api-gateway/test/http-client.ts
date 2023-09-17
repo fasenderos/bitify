@@ -62,6 +62,7 @@ export class HttpClient {
       : {
           email,
           password,
+          recaptchaToken: 'somerecaptchatoken',
         };
     return this.post(`/auth/${endpoint}`, body, auth);
   }

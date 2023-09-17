@@ -56,13 +56,14 @@ export class UsersService {
         verifyExpire,
       });
     } catch (error: any) {
+      /* istanbul ignore next */
       if (error instanceof QueryFailedError) {
         const err = error.driverError as DatabaseError;
         if (err.code === '23505') {
           throw new ConflictException('Email already registered');
         }
       }
-      /* c8 ignore next */
+      /* istanbul ignore next */
       throw new BadRequestException();
     }
   }

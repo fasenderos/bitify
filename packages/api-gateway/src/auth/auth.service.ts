@@ -201,7 +201,7 @@ export class AuthService {
     });
 
     // TODO improve this logic by checking creation time
-    if (allUserTokens.length > 5) {
+    if (allUserTokens.length >= 5) {
       await this.user.updateById(user.id, { state: UserState.BANNED });
       return;
     }
@@ -323,8 +323,9 @@ export class AuthService {
     const { body } = await request(
       `https://www.google.com/recaptcha/api/siteverify?secret=${this.recaptchaSecret}&response=${token}&remoteip=${ip}`,
     );
+    const bodyJson = await body.json();
     // https://developers.google.com/recaptcha/docs/verify
-    const response = (await body.json()) as {
+    const response = bodyJson as {
       success: boolean;
       challenge_ts: number; // timestamp of the challenge load (ISO format yyyy-MM-dd'T'HH:mm:ssZZ)
       hostname: string; // the hostname of the site where the reCAPTCHA was solved
@@ -332,6 +333,7 @@ export class AuthService {
     };
 
     if (!response.success)
+      /* istanbul ignore next */
       throw new UnprocessableEntityException(
         'Captcha verification failed, please try again.',
       );

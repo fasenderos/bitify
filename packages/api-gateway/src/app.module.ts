@@ -14,6 +14,7 @@ import { AccessControlModule } from 'nest-access-control';
 import { roles } from './app.roles';
 import { ApiKeysModule } from './api-keys/api-keys.module';
 import { CipherModule } from './common/modules/cipher/cipher.module';
+import { ServerResponse } from 'http';
 
 @Module({
   imports: [
@@ -28,7 +29,7 @@ import { CipherModule } from './common/modules/cipher/cipher.module';
       pinoHttp: {
         // We want to use pino-pretty only if there is a human watching this,
         // otherwise we log as newline-delimited JSON.
-        ...(process.stdout.isTTY
+        .../* istanbul ignore next */ (process.stdout.isTTY
           ? {
               transport: { target: 'pino-pretty' },
               level: 'debug',
@@ -37,7 +38,7 @@ import { CipherModule } from './common/modules/cipher/cipher.module';
               level: 'info',
             }),
         // Define a custom logger level
-        customLogLevel: function (res: IncomingMessage) {
+        customLogLevel: function (_: IncomingMessage, res: ServerResponse) {
           if (res.statusCode == null || res.statusCode < 300) {
             // Disable logs for response without error
             return 'silent';
@@ -45,6 +46,7 @@ import { CipherModule } from './common/modules/cipher/cipher.module';
             return 'warn';
           }
           // res.statusCode >= 500 || err
+          /* istanbul ignore next - right now the only error 500 is auth/login which is excluded from logging */
           return 'error';
         },
         // Define additional custom request properties

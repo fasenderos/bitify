@@ -1,4 +1,7 @@
 {
   "extends": "./tsconfig.json",
-  "exclude": ["node_modules", "test", "dist", "coverage"]
+  "exclude": ["node_modules", "test", "dist", "coverage"],
+  "compilerOptions": {
+    "removeComments": true
+  }
 }

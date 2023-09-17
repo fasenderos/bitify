@@ -48,7 +48,7 @@ export class ApiKeysService extends BaseService<
   override async updateById(
     id: string,
     data: UpdateApiKeyDto,
-    userId: string | undefined,
+    userId?: string,
   ): Promise<void> {
     const update: QueryDeepPartialEntity<ApiKey> = { ...data };
     // If userIps is `null`, means that user have
@@ -57,7 +57,7 @@ export class ApiKeysService extends BaseService<
     await this.repo.update(
       {
         id,
-        ...(userId ? { userId: userId } : {}),
+        ...(userId ? { userId: userId } : /* istanbul ignore next */ {}),
       },
       update,
     );

@@ -26,9 +26,3 @@ roles
   .readOwn([API_KEYS])
   .updateOwn([API_KEYS])
   .deleteOwn([API_KEYS]);
-
-// ******* SUPPORT ACL ******* //
-
-// ******* ADMIN ACL ******* //
-
-// ******* SUPERADMIN ACL ******* //

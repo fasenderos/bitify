@@ -14,10 +14,11 @@
     "start:prod": "node dist/src/main",
     "lint": "eslint",
     "lint:fix": "eslint --fix",
+    "pretest": "node ./test/before-all-tests.js",
     "test": "tap --ts",
-    "test:ci": "tap --ts --coverage --coverage-report=lcov",
-    "test:cov": "tap --ts --coverage",
-    "test:dev": "tap --ts --watch --coverage"
+    "test:ci": "pnpm pretest && tap --ts --coverage --coverage-report=lcov",
+    "test:cov": "pnpm pretest && tap --ts --coverage",
+    "test:dev": "pnpm pretest && tap --ts --watch --coverage"
   },
   "author": "Andrea Fassina <andrea.fassina82@gmail.com>",
   "repository": {
@@ -81,6 +82,7 @@
     "@types/timestring": "^6.0.2",
     "@typescript-eslint/eslint-plugin": "^6.4.1",
     "@typescript-eslint/parser": "^6.4.1",
+    "dotenv": "^16.3.1",
     "eslint": "^8.47.0",
     "eslint-config-prettier": "^9.0.0",
     "eslint-plugin-prettier": "^5.0.0",
