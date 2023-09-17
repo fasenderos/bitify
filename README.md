@@ -71,7 +71,7 @@ I would greatly appreciate any contributions to make this project better. Please
 
 Bug fixes and features should always come with tests and documentation where needed.
 
-# Donation
+## Donation
 
 If this project help you reduce time to develop, you can give me a cup of coffee 🍵 :)
 
@@ -81,6 +81,6 @@ If this project help you reduce time to develop, you can give me a cup of coffee
 - ETH (ERC20): `0xf673ee099be8129ec05e2f549d96ebea24ac5d97`
 - BNB (BEP20): `0xf673ee099be8129ec05e2f549d96ebea24ac5d97`
 
-# License
+## License
 
 Bitify is licensed under the [Apache 2.0](/LICENSE.md) license.
