@@ -5,10 +5,10 @@ require('dotenv').config();
 
 const clearDatabase = async () => {
   const client = new Client({
-    user: process.env['POSTGRES_USERNAME'],
-    host: process.env['POSTGRES_HOST'],
-    database: process.env['POSTGRES_DATABASE'],
-    password: process.env['POSTGRES_PASSWORD'],
+    user: process.env['POSTGRES_USERNAME'] ?? 'postgres',
+    host: process.env['POSTGRES_HOST'] ?? '127.0.0.1',
+    database: process.env['POSTGRES_DATABASE'] ?? 'postgres',
+    password: process.env['POSTGRES_PASSWORD'] ?? 'postgres',
     port: parseInt(process.env['POSTGRES_PORT'] ?? '5432'),
   });
   await client.connect();
