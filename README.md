@@ -8,7 +8,7 @@
 - [About](#about)
 - [To-Do](#to-do)
 - [Contributing](#contributing)
-- [Donations](#donations)
+- [Donation](#donation)
 - [License](#license)
 
 # About
@@ -71,7 +71,7 @@ I would greatly appreciate any contributions to make this project better. Please
 
 Bug fixes and features should always come with tests and documentation where needed.
 
-# Donations
+# Donation
 
 If this project help you reduce time to develop, you can give me a cup of coffee 🍵 :)
 
