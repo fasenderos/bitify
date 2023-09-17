@@ -7,7 +7,10 @@ import {
 import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity';
 import { BaseEntity } from './base.entity';
 import { IBaseService } from './interfaces/base-service.interface';
-import { UnprocessableEntityException } from '@nestjs/common';
+import {
+  InternalServerErrorException,
+  UnprocessableEntityException,
+} from '@nestjs/common';
 
 export abstract class BaseService<
   Entity extends BaseEntity,
@@ -24,6 +27,10 @@ export abstract class BaseService<
    * @returns The entity
    */
   createEntity(data: CreateDTO, userId: string): Entity {
+    if (!data || !userId)
+      throw new InternalServerErrorException(
+        'Missing data or userId for createEntity method',
+      );
     // Instantiating the entity before saving so hooks run
     return this.repo.create({ ...data, userId: userId });
   }
@@ -34,6 +41,8 @@ export abstract class BaseService<
    * @returns The created resource
    */
   save(data: Entity): Promise<Entity> {
+    if (!data)
+      throw new InternalServerErrorException('Missing data for save method');
     return this.repo.save(data);
   }
 
@@ -57,6 +66,10 @@ export abstract class BaseService<
     filter: FindOptionsWhere<Entity>,
     unselected = false,
   ): Promise<Entity | null> {
+    if (!filter)
+      throw new InternalServerErrorException(
+        'Missing filter for findOne method',
+      );
     if (unselected === true) {
       return this.repo.findOne({
         select: this.getAllTableColumns(),
@@ -73,6 +86,8 @@ export abstract class BaseService<
    * @returns The entity that match the conditions or null.
    */
   findById(id: string, unselected = false): Promise<Entity | null> {
+    if (!id)
+      throw new InternalServerErrorException('Missing id for findById method');
     return this.findOne({ id } as FindOptionsWhere<Entity>, unselected);
   }
 
@@ -86,6 +101,10 @@ export abstract class BaseService<
     filter: FindOptionsWhere<Entity>,
     data: UpdateDTO,
   ): Promise<void> {
+    if (!filter || !data)
+      throw new InternalServerErrorException(
+        'Missing filter or data for update method',
+      );
     // @ts-expect-error Dto should not have userId, but we check anyway at runtime
     if (data.userId)
       throw new UnprocessableEntityException('Ownership can not be changed');
@@ -105,6 +124,10 @@ export abstract class BaseService<
     data: UpdateDTO,
     userId?: string,
   ): Promise<void> {
+    if (!id || !data)
+      throw new InternalServerErrorException(
+        'Missing id or data for updateById method',
+      );
     // @ts-expect-error Dto should not have userId, but we check anyway at runtime
     if (data.userId)
       throw new UnprocessableEntityException('Ownership can not be changed');
@@ -126,6 +149,10 @@ export abstract class BaseService<
    * @param {boolean} soft When true a soft delete is performed otherwise a real delete.
    */
   async delete(filter: FindOptionsWhere<Entity>, soft = true): Promise<void> {
+    if (!filter)
+      throw new InternalServerErrorException(
+        'Missing filter for delete method',
+      );
     await this.repo[soft ? 'softDelete' : 'delete'](filter);
   }
 
@@ -138,6 +165,10 @@ export abstract class BaseService<
    * @param {boolean} soft When true a soft delete is performed otherwise a real delete.
    */
   async deleteById(id: string, userId?: string, soft = true): Promise<void> {
+    if (!id)
+      throw new InternalServerErrorException(
+        'Missing id for deleteById method',
+      );
     await this.repo[soft ? 'softDelete' : 'delete']({
       id,
       ...(userId ? { userId: userId } : {}),
