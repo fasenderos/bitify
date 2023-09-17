@@ -2,6 +2,7 @@ import {
   BadRequestException,
   ConflictException,
   Injectable,
+  InternalServerErrorException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -61,6 +62,7 @@ export class UsersService {
           throw new ConflictException('Email already registered');
         }
       }
+      /* c8 ignore next */
       throw new BadRequestException();
     }
   }
@@ -73,13 +75,13 @@ export class UsersService {
         'You have entered an invalid email or password',
       );
 
+    this.validateUserAuth(user);
+
     const match = await compare(password, user.passwordHash);
     if (!match)
       throw new UnauthorizedException(
         'You have entered an invalid email or password',
       );
-
-    this.validateUserAuth(user);
     return user;
   }
 
@@ -94,7 +96,7 @@ export class UsersService {
           'Sorry, your account is banned. Contact us for more information.',
         );
       default:
-        break;
+        throw new InternalServerErrorException();
     }
   }
 
@@ -116,9 +118,5 @@ export class UsersService {
     return this.user.metadata.columns.map(
       (col) => col.propertyName,
     ) as (keyof User)[];
-  }
-
-  async deleteById(id: string, soft = true): Promise<void> {
-    await this.user[soft ? 'softDelete' : 'delete'](id);
   }
 }

@@ -71,7 +71,8 @@ export async function createUser(
 
 export async function removeUser(id: string, app: NestFastifyApplication) {
   const service = app.get(UsersService);
-  return service.deleteById(id, false);
+  // @ts-expect-error user is private, don't want to make a getter only for this test utils
+  return service.user.delete(id);
 }
 
 export async function removeResource(

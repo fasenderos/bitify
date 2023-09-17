@@ -35,7 +35,7 @@ test('AuthController', async ({ equal, mock, teardown }) => {
   // Test email confirmation and get updated user
   user = await testConfirmEmail(user, app, equal, http);
 
-  const login = await testLogin(user.email, mockUser.password, equal, http);
+  const login = await testLogin(user, mockUser.password, equal, app, http);
   let accessToken = login.accessToken;
   let refreshToken = login.refreshToken;
 
@@ -277,13 +277,44 @@ const testConfirmEmail = async (
 };
 
 const testLogin = async (
-  email: string,
+  user: User,
   password: string,
   equal: any,
+  app: NestFastifyApplication,
   http: HttpClient,
 ) => {
-  const wrongLogin = await http.login(email, 'wrongpassword');
-  equal(wrongLogin.statusCode, HttpStatus.UNAUTHORIZED);
+  const { state: prevState, email, id } = user;
+  // Wrong Email
+  const wrongEmail = await http.login('some@mail.com', password);
+  equal(wrongEmail.statusCode, HttpStatus.UNAUTHORIZED);
+  // Wrong Password
+  const wrongPwd = await http.login(email, 'wrongpassword');
+  equal(wrongPwd.statusCode, HttpStatus.UNAUTHORIZED);
+
+  const userService = app.get(UsersService);
+  {
+    // Try login for user in pending state
+    await userService.updateById(id, { state: UserState.PENDING });
+    const login = await http.login(email, password);
+    equal(login.statusCode, HttpStatus.UNAUTHORIZED);
+  }
+
+  {
+    // Try login for banned user
+    await userService.updateById(id, { state: UserState.BANNED });
+    const login = await http.login(email, password);
+    equal(login.statusCode, HttpStatus.UNAUTHORIZED);
+  }
+
+  {
+    // Set an invalid user state
+    await userService.updateById(id, { state: 3 });
+    const login = await http.login(email, password);
+    equal(login.statusCode, HttpStatus.INTERNAL_SERVER_ERROR);
+  }
+
+  // Restore previouse user state
+  await userService.updateById(id, { state: prevState });
 
   // Successful login
   const login = await http.login(email, password);
