@@ -8,6 +8,8 @@
 - [About](#about)
 - [To-Do](#to-do)
 - [Contributing](#contributing)
+- [Donations](#donations)
+- [License](#license)
 
 # About
 
@@ -68,6 +70,16 @@ I would greatly appreciate any contributions to make this project better. Please
 5. Open a pull request
 
 Bug fixes and features should always come with tests and documentation where needed.
+
+# Donations
+
+If this project help you reduce time to develop, you can give me a cup of coffee 🍵 :)
+
+- USDT (TRC20): `TXArNxsq2Ee8Jvsk45PudVio52Joiq1yEe`
+- BTC: `1GYDVSAQNgG7MFhV5bk15XJy3qoE4NFenp`
+- BTC (BEP20): `0xf673ee099be8129ec05e2f549d96ebea24ac5d97`
+- ETH (ERC20): `0xf673ee099be8129ec05e2f549d96ebea24ac5d97`
+- BNB (BEP20): `0xf673ee099be8129ec05e2f549d96ebea24ac5d97`
 
 # License
 
