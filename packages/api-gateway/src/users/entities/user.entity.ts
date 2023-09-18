@@ -3,6 +3,7 @@ import {
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
+  Index,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -14,7 +15,8 @@ export class User {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
 
-  @Column({ unique: true })
+  @Index('index_users_on_email', { unique: true })
+  @Column()
   email!: string;
 
   @Column({ select: false })
@@ -42,8 +44,8 @@ export class User {
   @Column({ default: UserState.PENDING })
   state!: number;
 
-  @Column({ nullable: true, type: 'uuid' })
-  referralId!: string;
+  @Column('uuid', { nullable: true })
+  referralId!: string | null;
 
   @Column({ default: false })
   otp!: boolean;

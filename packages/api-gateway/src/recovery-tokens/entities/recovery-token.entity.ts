@@ -1,8 +1,9 @@
-import { Column, Entity } from 'typeorm';
+import { Column, Entity, Index } from 'typeorm';
 import { BaseEntity } from '../../base/base.entity';
 import { Collections } from '../../common/constants';
 
 @Entity({ name: Collections.RECOVERY_TOKENS })
+@Index(`index_${Collections.RECOVERY_TOKENS}_on_userId`, ['userId'])
 export class RecoveryToken extends BaseEntity {
   @Column()
   token!: string;

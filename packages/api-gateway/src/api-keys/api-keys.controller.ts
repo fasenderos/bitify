@@ -11,10 +11,10 @@ const BaseController = ControllerFactory<
   ApiKey,
   CreateApiKeyDto,
   UpdateApiKeyDto
->(CreateApiKeyDto, UpdateApiKeyDto, Collections.API_KEYS);
+>(CreateApiKeyDto, UpdateApiKeyDto, Collections.APIKEYS);
 
-@ApiTags(Collections.API_KEYS)
-@Controller(Collections.API_KEYS)
+@ApiTags(Collections.APIKEYS)
+@Controller(Collections.APIKEYS)
 export class ApiKeysController extends BaseController {
   constructor(service: ApiKeysService) {
     super(service);

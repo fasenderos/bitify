@@ -1,4 +1,4 @@
-import { Column, Entity } from 'typeorm';
+import { Column, Entity, Index } from 'typeorm';
 import { BaseEntity } from '../../base/base.entity';
 import { Collections } from '../../common/constants';
 import { ApiKeyAbility } from '../../app.roles';
@@ -8,7 +8,8 @@ export enum ApiKeyType {
   HMAC = 'HMAC',
 }
 
-@Entity({ name: Collections.API_KEYS })
+@Entity({ name: Collections.APIKEYS })
+@Index(`index_${Collections.APIKEYS}_on_userId`, ['userId'])
 export class ApiKey extends BaseEntity {
   @Column({ unique: true })
   public!: string;

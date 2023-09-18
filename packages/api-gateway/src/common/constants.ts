@@ -1,7 +1,8 @@
 export enum Collections {
   ACTIVITIES = 'activities',
-  API_KEYS = 'api_keys',
+  APIKEYS = 'apikeys',
   RECOVERY_TOKENS = 'recovery_tokens',
+  PROFILES = 'profiles',
   USERS = 'users',
 }
 

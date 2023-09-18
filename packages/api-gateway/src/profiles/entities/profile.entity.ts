@@ -1,7 +1,9 @@
-import { Column, Entity } from 'typeorm';
+import { Column, Entity, Index } from 'typeorm';
 import { BaseEntity } from '../../base/base.entity';
+import { Collections } from '../../common/constants';
 
-@Entity({ name: 'profiles' })
+@Entity({ name: Collections.PROFILES })
+@Index(`index_${Collections.PROFILES}_on_userId`, ['userId'])
 export class Profile extends BaseEntity {
   @Column('varchar', { nullable: true })
   firstName!: string | null;
@@ -24,6 +26,6 @@ export class Profile extends BaseEntity {
   @Column('varchar', { nullable: true })
   country!: string | null;
 
-  @Column({ type: 'jsonb', nullable: true })
+  @Column('jsonb', { nullable: true })
   metadata!: string | null;
 }

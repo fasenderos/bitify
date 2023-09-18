@@ -61,7 +61,7 @@ test('test api-key authentication', async ({ equal, teardown }) => {
     spot: 'read',
     wallet: 'read-write',
   };
-  const response = await http.post('/api_keys', mockBody, auth);
+  const response = await http.post('/apikeys', mockBody, auth);
   const { id, public: publicKey, secret: secretKey } = response.body;
   const timestamp = Date.now();
   const recvWindow = 5000;

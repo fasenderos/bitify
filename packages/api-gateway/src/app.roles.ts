@@ -1,7 +1,7 @@
 import { RolesBuilder } from 'nest-access-control';
 import { Collections } from './common/constants';
 
-const { API_KEYS } = Collections;
+const { APIKEYS } = Collections;
 
 export enum UserRole {
   // SUPER ADMIN has an access to the whole system without any limits
@@ -22,7 +22,7 @@ export const roles: RolesBuilder = new RolesBuilder();
 roles
   // ******* MEMBER ACL ******* //
   .grant(UserRole.MEMBER)
-  .createOwn([API_KEYS])
-  .readOwn([API_KEYS])
-  .updateOwn([API_KEYS])
-  .deleteOwn([API_KEYS]);
+  .createOwn([APIKEYS])
+  .readOwn([APIKEYS])
+  .updateOwn([APIKEYS])
+  .deleteOwn([APIKEYS]);
