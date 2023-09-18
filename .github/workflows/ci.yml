@@ -56,6 +56,8 @@ jobs:
           cd packages/api-gateway && touch .env
           echo RECAPTCHA_PRIVATE_KEY="6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe" >> .env
           echo EMAIL_FROM="no-reply <email@somesite.com>" >> .env
+          echo FRONTEND_BASE_URL="http://127.0.0.1:3000" >> .env
+          echo ENCRYPTION_KEY="change-me-encryption-secret-32-c" >> .env
           cat .env
       - name: Install dependencies
         uses: nick-fields/retry@v2.8.3
