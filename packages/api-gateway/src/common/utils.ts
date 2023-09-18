@@ -1,12 +1,6 @@
-import { customAlphabet } from 'nanoid';
 import { isPlainObject } from 'lodash';
 import sanitizeHtml from 'sanitize-html';
-
-const lowercase = 'abcdefghijklmnopqrstuvwxyz';
-const uppercase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-const numbers = '0123456789';
-const alphanumeric = numbers + lowercase + uppercase;
-const nanoid = customAlphabet(alphanumeric);
+import { getRandomValues } from 'crypto';
 
 export const sanitize = (value: string): string => {
   return sanitizeHtml(value, {
@@ -35,7 +29,21 @@ export const trim = (value: any, exclude?: string): any => {
 };
 
 export const createRandomString = (length = 32): string => {
-  return nanoid(length);
+  let result = '';
+  const lowercase = 'abcdefghijklmnopqrstuvwxyz';
+  const uppercase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  const numbers = '0123456789';
+  const alphanumeric = numbers + lowercase + uppercase;
+  const charactersLength = alphanumeric.length;
+
+  // Create an array of 32-bit unsigned integers
+  const randomValues = new Uint32Array(length);
+  // Generate random values
+  getRandomValues(randomValues);
+  randomValues.forEach((value) => {
+    result += alphanumeric.charAt(value % charactersLength);
+  });
+  return result;
 };
 
 export const isExpired = (date: Date, expireInMs: number): boolean => {

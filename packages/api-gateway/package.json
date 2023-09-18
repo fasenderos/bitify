@@ -50,7 +50,6 @@
     "fastify": "^4.23.2",
     "handlebars": "^4.7.8",
     "lodash": "^4.17.21",
-    "nanoid": "^3.0.0",
     "nest-access-control": "^3.0.0",
     "nestjs-pino": "^3.3.0",
     "nestjs-real-ip": "^3.0.1",

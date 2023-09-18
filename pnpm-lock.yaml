@@ -80,9 +80,6 @@ importers:
       lodash:
         specifier: ^4.17.21
         version: 4.17.21
-      nanoid:
-        specifier: ^3.0.0
-        version: 3.3.6
       nest-access-control:
         specifier: ^3.0.0
         version: 3.0.0
