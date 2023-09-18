@@ -68,3 +68,19 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: ./packages/api-gateway/coverage/clover.xml
           fail_ci_if_error: true
+      - name: Add PR coverage report
+        if: ${{ always() && github.event_name == 'pull_request' && matrix.node-version == 20 }}
+        uses: MishaKav/jest-coverage-comment@main
+        with:
+          coverage-summary-path: ./packages/api-gateway/coverage/coverage-summary.json
+          title: Coverage Report
+          summary-title: Summary
+          badge-title: Coverage
+          hide-comment: false
+          create-new-comment: false
+          hide-summary: false
+          # junitxml-title: My JUnit Title
+          # junitxml-path: ./app/coverage/clover.xml
+          report-only-changed-files: true
+          coverage-title: File Coverage
+          coverage-path: ./packages/api-gateway/coverage/coverage.txt
