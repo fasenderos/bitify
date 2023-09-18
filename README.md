@@ -1,7 +1,7 @@
 <p align="center">
     <a href="https://github.com/fasenderos/bitify/blob/main/LICENSE.md" target="_blank"><img src="https://img.shields.io/badge/License-Apache_2.0-blue.svg" alt="Package License"></a>
-    <a href="https://codecov.io/github/fasenderos/bitify" target="_blank"><img src="https://img.shields.io/codecov/c/github/fasenderos/bitify" alt="Codecov"></a>
-    <a href="https://github.com/fasenderos/bitify"><img src="https://badgen.net/badge/icon/typescript?icon=typescript&label" alt="Built with TypeScript"></a>
+    <a href="https://codecov.io/github/fasenderos/bitify" target="_blank"><img src="https://codecov.io/github/fasenderos/bitify/graph/badge.svg?token=FN6997JFRA" alt="Codecov"></a>
+    <a href="https://github.com/fasenderos/bitify"><img src="https://badgen.net/badge/Built%20With/TypeScript/blue" alt="Built with TypeScript"></a>
 </p>
 
 > <b>WARNING</b>: This software is not ready yet, please don't use in production. There are a [lot of things to do](#to-do) and is under active development. APIs and table schemas are subject to change without notice. Technical support is unavailable at this time.
