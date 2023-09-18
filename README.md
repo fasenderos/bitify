@@ -1,5 +1,5 @@
 <p align="center">
-    <a href="https://github.com/fasenderos/bitify/blob/main/LICENSE" target="_blank"><img src="https://img.shields.io/badge/License-Apache_2.0-blue.svg" alt="Package License"></a>
+    <a href="https://github.com/fasenderos/bitify/blob/main/LICENSE.md" target="_blank"><img src="https://img.shields.io/badge/License-Apache_2.0-blue.svg" alt="Package License"></a>
     <a href="https://codecov.io/github/fasenderos/bitify" target="_blank"><img src="https://img.shields.io/codecov/c/github/fasenderos/bitify" alt="Codecov"></a>
     <a href="https://github.com/fasenderos/bitify"><img src="https://badgen.net/badge/icon/typescript?icon=typescript&label" alt="Built with TypeScript"></a>
 </p>
