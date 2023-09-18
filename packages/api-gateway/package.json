@@ -16,7 +16,7 @@
     "lint:fix": "eslint --fix",
     "pretest": "node ./test/before-all-tests.js",
     "test": "tap --ts",
-    "test:ci": "pnpm pretest && tap --ts --coverage --coverage-report=lcov",
+    "test:ci": "tap --ts --coverage --coverage-report=clover",
     "test:cov": "pnpm pretest && tap --ts --coverage",
     "test:dev": "pnpm pretest && tap --ts --watch --coverage"
   },

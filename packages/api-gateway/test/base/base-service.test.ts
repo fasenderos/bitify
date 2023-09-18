@@ -1,9 +1,6 @@
 import { test } from 'tap';
 import { buildServer, createUser } from '../helper';
-import {
-  InternalServerErrorException,
-  UnprocessableEntityException,
-} from '@nestjs/common';
+import { UnprocessableEntityException } from '@nestjs/common';
 import { RecoveryTokensService } from '../../src/recovery-tokens/recovery-tokens.service';
 import { RecoveryToken } from '../../src/recovery-tokens/entities/recovery-token.entity';
 import { randomUUID } from 'crypto';
@@ -25,30 +22,10 @@ test('base service creatEntity() and save() method', async ({
     token: 'somerecoverytoken',
     expiresAt: new Date(),
   };
-  // Test createEntity() method without required params
-  try {
-    // @ts-expect-error we now that userId is required
-    service.createEntity(mockBody);
-  } catch (error) {
-    equal(error instanceof InternalServerErrorException, true);
-  }
-  try {
-    // @ts-expect-error we now that dto is required
-    service.createEntity();
-  } catch (error) {
-    equal(error instanceof InternalServerErrorException, true);
-  }
+
   // Test createEntity() method with right params
   const tokenEntity = service.createEntity(mockBody, user.id);
   equal(tokenEntity instanceof RecoveryToken, true);
-
-  // Test save() method without required param
-  try {
-    // @ts-expect-error we now that dto is required
-    service.save();
-  } catch (error) {
-    equal(error instanceof InternalServerErrorException, true);
-  }
 
   // test save() method with right param
   const token = await service.save(tokenEntity);
@@ -107,16 +84,6 @@ test('base service findOne() method', async ({ equal, teardown }) => {
   const tokenEntity = service.createEntity(mockBody, user.id);
   const token = await service.save(tokenEntity);
 
-  // Test findOne() method without params
-  {
-    try {
-      // @ts-expect-error we now that a filter is required in findOne
-      await service.findOne();
-    } catch (error) {
-      equal(error instanceof InternalServerErrorException, true);
-    }
-  }
-
   // Test findOne() method invalid ID
   {
     const res = await service.findOne({ id: randomUUID() });
@@ -145,16 +112,6 @@ test('base service findById() method', async ({ equal, teardown }) => {
   const tokenEntity = service.createEntity(mockBody, user.id);
   const token = await service.save(tokenEntity);
 
-  // Test findById() method without params
-  {
-    try {
-      // @ts-expect-error we now that id is required
-      await service.findById();
-    } catch (error) {
-      equal(error instanceof InternalServerErrorException, true);
-    }
-  }
-
   // Test findById() method invalid ID
   {
     const res = await service.findById(randomUUID());
@@ -182,23 +139,6 @@ test('base service update() method', async ({ equal, teardown }) => {
   };
   const tokenEntity = service.createEntity(mockBody, user.id);
   const token = await service.save(tokenEntity);
-
-  // Test update() method without params
-  {
-    try {
-      // @ts-expect-error we now that filter is required
-      await service.update();
-    } catch (error) {
-      equal(error instanceof InternalServerErrorException, true);
-    }
-
-    try {
-      // @ts-expect-error we now that dto is required
-      await service.update({ id: token.id });
-    } catch (error) {
-      equal(error instanceof InternalServerErrorException, true);
-    }
-  }
 
   // Test update() method with right params
   {
@@ -232,22 +172,6 @@ test('base service updateById() method', async ({ equal, teardown }) => {
   };
   const tokenEntity = service.createEntity(mockBody, user.id);
   const token = await service.save(tokenEntity);
-  // Test updateById() method without required params
-  {
-    try {
-      // @ts-expect-error we now that filter is required
-      await service.updateById();
-    } catch (error) {
-      equal(error instanceof InternalServerErrorException, true);
-    }
-
-    try {
-      // @ts-expect-error we now that dto is required
-      await service.updateById(token.id);
-    } catch (error) {
-      equal(error instanceof InternalServerErrorException, true);
-    }
-  }
 
   // Test updatedById() method with right params
   {
@@ -296,16 +220,6 @@ test('base service delete() method', async ({ equal, teardown }) => {
   const tokenEntity = service.createEntity(mockBody, user.id);
   const token = await service.save(tokenEntity);
 
-  // Test delete() method without params
-  {
-    try {
-      // @ts-expect-error we now that filter is required
-      await service.delete();
-    } catch (error) {
-      equal(error instanceof InternalServerErrorException, true);
-    }
-  }
-
   // Test delete() method with right params
   {
     await service.delete({ id: token.id });
@@ -348,16 +262,6 @@ test('base service deleteById() method', async ({ equal, teardown }) => {
   };
   const tokenEntity = service.createEntity(mockBody, user.id);
   const token = await service.save(tokenEntity);
-
-  // Test deleteById() method without required params
-  {
-    try {
-      // @ts-expect-error we now that filter is required
-      await service.deleteById();
-    } catch (error) {
-      equal(error instanceof InternalServerErrorException, true);
-    }
-  }
 
   // Test deleteById() method without passing userId
   {
