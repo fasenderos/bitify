@@ -68,7 +68,7 @@
     "undici": "^5.22.1"
   },
   "devDependencies": {
-    "@bitify/release-it": "workspace:^",
+    "@bitify/release-it": "*",
     "@nestjs/cli": "^10.0.0",
     "@nestjs/schematics": "^10.0.0",
     "@nestjs/testing": "^10.0.0",
