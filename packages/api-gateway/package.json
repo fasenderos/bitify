@@ -15,6 +15,7 @@
     "lint": "eslint",
     "lint:fix": "eslint --fix",
     "pretest": "node ./test/before-all-tests.js",
+    "release": "release-it --ci",
     "test": "pnpm pretest && tap --ts",
     "test:ci": "pnpm pretest && tap --ts --coverage && tap --coverage-report=lcov",
     "test:cov": "pnpm pretest && tap --ts --coverage",
@@ -25,7 +26,7 @@
     "type": "git",
     "url": "git+https://github.com/fasenderos/bitify.git"
   },
-  "license": "MIT",
+  "license": "Apache-2.0",
   "bugs": {
     "url": "https://github.com/fasenderos/bitify/issues"
   },
@@ -67,6 +68,7 @@
     "undici": "^5.22.1"
   },
   "devDependencies": {
+    "@bitify/release-it": "workspace:^",
     "@nestjs/cli": "^10.0.0",
     "@nestjs/schematics": "^10.0.0",
     "@nestjs/testing": "^10.0.0",

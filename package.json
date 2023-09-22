@@ -3,6 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "description": "Ultra-fast Open Source Trading Platform for NodeJS",
+  "license": "Apache-2.0",
   "scripts": {
     "ci:publish": "pnpm publish -r",
     "cleanall": "rm -rf pnpm-lock.yaml node_modules packages/*/node_modules && pnpm workspace -- clean",
