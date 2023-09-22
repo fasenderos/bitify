@@ -46,4 +46,9 @@ module.exports = {
       },
     },
   },
+  hooks: {
+    "after:@release-it/conventional-changelog:bump": [
+      'pnpm format:fix',
+    ],
+  },
 };
