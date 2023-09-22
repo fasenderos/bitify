@@ -13,7 +13,7 @@
     "lint": "pnpm workspace -- lint",
     "lint:fix": "pnpm workspace -- lint:fix",
     "prepare": "husky install",
-    "release": "pnpm workspace -- release",
+    "release": "turbo release --concurrency=1",
     "test": "pnpm workspace -- test",
     "test:dev": "pnpm workspace -- test:dev",
     "start": "pnpm workspace -- start",
@@ -28,7 +28,8 @@
     "@tsconfig/node-lts": "^18.12.3",
     "@tsconfig/strictest": "^2.0.1",
     "husky": "^8.0.0",
-    "lint-staged": "^14.0.1"
+    "lint-staged": "^14.0.1",
+    "turbo": "^1.10.14"
   },
   "keywords": [
     "trading",
