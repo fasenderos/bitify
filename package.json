@@ -1,5 +1,5 @@
 {
-  "name": "@bitify/core",
+  "name": "bitify-root",
   "version": "0.0.0",
   "private": true,
   "description": "Ultra-fast Open Source Trading Platform for NodeJS",

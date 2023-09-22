@@ -48,8 +48,8 @@ If you want to speed up the Bitify release, please contribute to this project by
 - [x] Update dependencies with dependabot or similar
 - [x] Code checker like CodeQL or similar
 - [x] Code coverage like Codecov
-- [ ] Publish release on NPM and Github (one version fits all)
-- [ ] Auto changelog (each package with its own)
+- [x] Publish release on NPM and Github (one version fits all)
+- [x] Auto changelog (each package with its own)
 
 ### Macro Area
 

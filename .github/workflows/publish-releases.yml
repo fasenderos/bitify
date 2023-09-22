@@ -1,58 +1,49 @@
-name: Publish releases
+name: Release & Publish
 
 on:
-  workflow_dispatch:
-    inputs:
-      version:
-        description: "The version number to tag and release"
-        required: true
-        type: string
+  push:
+    tags:
+      - 'v*'
 
 jobs:
-  release-npm:
+  release:
     runs-on: ubuntu-latest
-    environment: main
-    permissions:
-      contents: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Create Release
+        uses: softprops/action-gh-release@v0.1.15
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  publish:
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v2.4.0
-      - uses: actions/setup-node@v3
+      - name: Setup .npmrc file to publish to npm
+        uses: actions/setup-node@v3
         with:
-          node-version: "18"
-          registry-url: "https://registry.npmjs.org"
+          node-version: '18'
+          registry-url: 'https://registry.npmjs.org'
           cache: "pnpm"
-      - name: pnpm install
+      - name: Install modules
         uses: nick-fields/retry@v2.8.3
         with:
           max_attempts: 10
           timeout_minutes: 15
           retry_on: error
           command: pnpm install
-      - name: Change version number and sync
+      - name: Build
         run: |
-          node scripts/update-version.mjs ${{ inputs.version }}
-          sh scripts/sync-version.sh
-      - name: update lockfile
-        uses: nick-fields/retry@v2.8.3
-        with:
-          max_attempts: 10
-          timeout_minutes: 15
-          retry_on: error
-          command: pnpm install
-      - name: GIT commit and push all changed files
+          PATH="$(node ./scripts/get-package-from-tag.js '${{  github.ref_name }}')"
+          cd ${PATH}
+          pnpm build
+      - name: Publish to npm
         run: |
-          git config --global user.name "fasenderos"
-          git config --global user.email "fasenderos@gmail.com"
-          git commit -a -m "chore: release version ${{ inputs.version }}"
-          git push origin HEAD:main
-      - name: Create and publish version
-        uses: changesets/action@v1
-        with:
-          version: pnpm ci:version
-          commit: "chore: release version ${{ inputs.version }}"
-          title: "chore: release version ${{ inputs.version }}"
-          publish: pnpm ci:publish
+          PATH="$(node ./scripts/get-package-from-tag.js '${{  github.ref_name }}')"
+          cd ${PATH}
+          pnpm publish --access public
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+

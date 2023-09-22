@@ -1,0 +1,13 @@
+{
+  "name": "@bitify/release-it",
+  "version": "0.0.0",
+  "license": "Apache-2.0",
+  "main": ".release-it.js",
+  "scripts": {
+    "release": "release-it --ci"
+  },
+  "devDependencies": {
+    "@release-it/conventional-changelog": "^7.0.2",
+    "release-it": "^16.1.5"
+  }
+}
