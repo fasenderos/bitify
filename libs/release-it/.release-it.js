@@ -47,6 +47,6 @@ module.exports = {
     },
   },
   hooks: {
-    "before:npm": "npm run format:fix",
+    "before:npm:init": "npm run format:fix",
   },
 };
