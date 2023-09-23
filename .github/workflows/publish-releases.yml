@@ -44,8 +44,8 @@ jobs:
           cache: "pnpm"
       - name: git config
         run: |
-          git config --global user.email "fasenderos@gmail.com"
-          git config --global user.name "Andrea Fassina"
+          git config user.name "${{ github.actor }}"
+          git config user.email "${{ github.actor}}@users.noreply.github.com"
       - name: Install dependencies
         uses: nick-fields/retry@v2.8.3
         with:
