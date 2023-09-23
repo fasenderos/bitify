@@ -1,6 +1,6 @@
 {
   "name": "@bitify/release-it",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "license": "Apache-2.0",
   "main": ".release-it.js",
   "scripts": {
