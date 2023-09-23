@@ -3,10 +3,13 @@
   "version": "0.0.2",
   "license": "Apache-2.0",
   "main": ".release-it.js",
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "format": "prettier --list-different .",
     "format:fix": "prettier --write .",
-    "release": "release-it --ci --verbose"
+    "release": "release-it --ci"
   },
   "devDependencies": {
     "@release-it/conventional-changelog": "^7.0.2",

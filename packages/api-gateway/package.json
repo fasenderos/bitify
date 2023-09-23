@@ -2,6 +2,9 @@
   "name": "@bitify/api-gateway",
   "version": "0.0.0",
   "description": "",
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "build": "pnpm clean && nest build",
     "clean": "rm -rf coverage dist .nyc_output",
