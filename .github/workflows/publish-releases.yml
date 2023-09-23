@@ -42,10 +42,13 @@ jobs:
           node-version: "18"
           registry-url: "https://registry.npmjs.org"
           cache: "pnpm"
+      - uses: webfactory/ssh-agent@v0.8.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
       - name: git config
         run: |
-          git config user.name "${{ github.actor }}"
-          git config user.email "${{ github.actor}}@users.noreply.github.com"
+          git config user.name "fasenderos"
+          git config user.email "fasenderos@gmail.com"
       - name: Install dependencies
         uses: nick-fields/retry@v2.8.3
         with:
