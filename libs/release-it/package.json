@@ -6,7 +6,7 @@
   "scripts": {
     "format": "prettier --list-different .",
     "format:fix": "prettier --write .",
-    "release": "release-it --ci"
+    "release": "release-it --ci --verbose"
   },
   "devDependencies": {
     "@release-it/conventional-changelog": "^7.0.2",

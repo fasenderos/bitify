@@ -42,6 +42,10 @@ jobs:
           node-version: "18"
           registry-url: "https://registry.npmjs.org"
           cache: "pnpm"
+      - name: git config
+        run: |
+          git config --global user.email "fasenderos@gmail.com"
+          git config --global user.name "Andrea Fassina"
       - name: Install dependencies
         uses: nick-fields/retry@v2.8.3
         with:
@@ -51,8 +55,6 @@ jobs:
           command: pnpm install --frozen-lockfile
       - name: Release packages
         run: |
-          git config --global user.email "fasenderos@gmail.com"
-          git config --global user.name "Andrea Fassina"
           if [ "${{ github.event.inputs.package }}" != "" ];
           then
             PATH="$(node ./scripts/get-package-from-tag.js '${{  github.ref_name }}')"
