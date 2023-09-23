@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.0.6](https://github.com/fasenderos/bitify/compare/@bitify/release-it-v0.0.5...@bitify/release-it-v0.0.6) (2023-09-23)
+
+
+### Documentation
+
+* **api-gateway:** remove changelog ([d7ba8ec](https://github.com/fasenderos/bitify/commit/d7ba8ec64cb8b4883b774956a98711696d57e3e0))
+
 ## [0.0.5](https://github.com/fasenderos/bitify/compare/@bitify/release-it-v0.0.3...@bitify/release-it-v0.0.5) (2023-09-23)
 
 ## 0.0.4 (2023-09-23)
