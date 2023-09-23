@@ -50,7 +50,7 @@ jobs:
       - name: Release packages
         run: |
           git config --global user.email "fasenderos@gmail.com"
-          git config --global user.name "fasenderos"
+          git config --global user.name "Andrea Fassina"
           if [! -z "${{ github.event.inputs.package }}" ];
           then
             PATH="$(node ./scripts/get-package-from-tag.js '${{  github.ref_name }}')"
