@@ -28,6 +28,9 @@ jobs:
   publish:
     needs: setup-node_modules
     runs-on: ubuntu-latest
+    environment: main
+    permissions:
+      contents: write
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
