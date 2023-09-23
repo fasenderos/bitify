@@ -46,6 +46,8 @@ jobs:
           command: pnpm install --frozen-lockfile
       - name: Release packages
         run: |
+          git config --global user.email "fasenderos@gmail.com"
+          git config --global user.name "fasenderos"
           if [! -z "${{ github.event.inputs.package }}" ];
           then
             PATH="$(node ./scripts/get-package-from-tag.js '${{  github.ref_name }}')"
