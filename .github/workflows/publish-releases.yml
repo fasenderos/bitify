@@ -3,7 +3,7 @@ name: Release & Publish
 on:
   push:
     tags:
-      - 'v*'
+      - "@bitify*"
 
 jobs:
   release:
@@ -24,8 +24,8 @@ jobs:
       - name: Setup .npmrc file to publish to npm
         uses: actions/setup-node@v3
         with:
-          node-version: '18'
-          registry-url: 'https://registry.npmjs.org'
+          node-version: "18"
+          registry-url: "https://registry.npmjs.org"
           cache: "pnpm"
       - name: Install modules
         uses: nick-fields/retry@v2.8.3
@@ -46,4 +46,3 @@ jobs:
           pnpm publish --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-
