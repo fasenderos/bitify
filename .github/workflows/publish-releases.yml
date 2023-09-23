@@ -43,6 +43,6 @@ jobs:
         run: |
           PATH="$(node ./scripts/get-package-from-tag.js '${{  github.ref_name }}')"
           cd ${PATH}
-          pnpm publish --access public
+          echo "Run publish on ${PATH}"
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
