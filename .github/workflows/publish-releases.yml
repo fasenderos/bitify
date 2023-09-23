@@ -46,18 +46,18 @@ jobs:
           command: pnpm install --frozen-lockfile
       - name: Build packages
         run: |
-          if [ -z "${{ github.event.inputs.package }}" ];
+          if [! -z "${{ github.event.inputs.package }}" ];
           then
             PATH="$(node ./scripts/get-package-from-tag.js '${{  github.ref_name }}')"
-            cd ${PATH}
+            if [! -z "$PATH" ]; then cd $PATH; fi
           fi
           pnpm build
       - name: Release packages
         run: |
-          if [ -z "${{ github.event.inputs.package }}" ];
+          if [! -z "${{ github.event.inputs.package }}" ];
           then
             PATH="$(node ./scripts/get-package-from-tag.js '${{  github.ref_name }}')"
-            cd ${PATH}
+            if [! -z "$PATH" ]; then cd $PATH; fi
           fi
           pnpm release
         env:
