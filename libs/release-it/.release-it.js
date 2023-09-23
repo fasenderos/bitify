@@ -48,6 +48,6 @@ module.exports = {
   },
   hooks: {
     // Format the generated changelog befor commit to avoid problem with lint-staged
-    'before:npm:init': 'npm run format:fix',
+    'before:git:init': 'npm run format:fix',
   },
 };
