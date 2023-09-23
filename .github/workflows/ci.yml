@@ -4,11 +4,11 @@ on:
   push:
     branches:
       - main
-    paths-ignore:
-      - "**.md"
+    paths:
+      - 'packages/**'
   pull_request:
-    paths-ignore:
-      - "**.md"
+    paths:
+      - 'packages/**'
 
 # This allows a subsequently queued workflow run to interrupt previous runs
 concurrency:
