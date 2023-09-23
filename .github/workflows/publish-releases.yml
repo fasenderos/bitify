@@ -1,9 +1,11 @@
 name: Release & Publish
 
 on:
-  push:
-    tags:
-      - "@bitify*"
+  workflow_dispatch:
+    inputs:
+      package:
+        description: "The package name to be released (e.g @bitify/api-gateway). If empty every packages will be released"
+        type: string
 
 jobs:
   release:
@@ -34,15 +36,22 @@ jobs:
           timeout_minutes: 15
           retry_on: error
           command: pnpm install
-      - name: Build
+      - name: Build package
         run: |
-          PATH="$(node ./scripts/get-package-from-tag.js '${{  github.ref_name }}')"
-          cd ${PATH}
+          if [ -z "${{ inputs.package }}" ]
+          then
+            PATH="$(node ./scripts/get-package-from-tag.js '${{  github.ref_name }}')"
+            cd ${PATH}
+          fi
           pnpm build
-      - name: Publish to npm
+      - name: Release package
         run: |
-          PATH="$(node ./scripts/get-package-from-tag.js '${{  github.ref_name }}')"
-          cd ${PATH}
-          echo "Run publish on ${PATH}"
+          if [ -z "${{ inputs.package }}" ]
+          then
+            PATH="$(node ./scripts/get-package-from-tag.js '${{  github.ref_name }}')"
+            cd ${PATH}
+          fi
+          pnpm release
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
