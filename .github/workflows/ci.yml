@@ -1,4 +1,4 @@
-name: Run lint, tests and upload coverage
+name: Lint, Test & Upload Coverage
 
 on:
   push:
