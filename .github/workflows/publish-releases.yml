@@ -32,8 +32,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v2.4.0
-      - name: Setup .npmrc file to publish to npm
-        uses: actions/setup-node@v3
+      - uses: actions/setup-node@v3
         with:
           node-version: "18"
           registry-url: "https://registry.npmjs.org"
@@ -45,16 +44,18 @@ jobs:
           timeout_minutes: 15
           retry_on: error
           command: pnpm install --frozen-lockfile
-      - name: Build package
+      - name: Build packages
         run: |
-          if ${{ inputs.package }}; then
+          if [ -z "${{ github.event.inputs.package }}" ];
+          then
             PATH="$(node ./scripts/get-package-from-tag.js '${{  github.ref_name }}')"
             cd ${PATH}
           fi
           pnpm build
-      - name: Release package
+      - name: Release packages
         run: |
-          if ${{ inputs.package }}; then
+          if [ -z "${{ github.event.inputs.package }}" ];
+          then
             PATH="$(node ./scripts/get-package-from-tag.js '${{  github.ref_name }}')"
             cd ${PATH}
           fi
