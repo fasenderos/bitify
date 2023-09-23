@@ -1,5 +1,7 @@
 # Changelog
 
+## [0.0.7](https://github.com/fasenderos/bitify/compare/@bitify/release-it-v0.0.6...@bitify/release-it-v0.0.7) (2023-09-23)
+
 ## [0.0.6](https://github.com/fasenderos/bitify/compare/@bitify/release-it-v0.0.5...@bitify/release-it-v0.0.6) (2023-09-23)
 
 
