@@ -1,5 +1,7 @@
 # Changelog
 
+## [0.0.5](https://github.com/fasenderos/bitify/compare/@bitify/release-it-v0.0.3...@bitify/release-it-v0.0.5) (2023-09-23)
+
 ## 0.0.4 (2023-09-23)
 
 ### Chore
