@@ -15,7 +15,7 @@ module.exports = {
     requireCleanWorkingDir: true,
   },
   npm: {
-    publish: false,
+    publish: true,
     versionArgs: ['--workspaces false'],
   },
   github: {
