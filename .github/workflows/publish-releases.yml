@@ -8,18 +8,27 @@ on:
         type: string
 
 jobs:
-  release:
+  setup-node_modules:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-      - name: Create Release
-        uses: softprops/action-gh-release@v0.1.15
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v2.4.0
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 20
+          cache: "pnpm"
+      - uses: "nick-fields/retry@v2.8.3"
+        with:
+          max_attempts: 10
+          timeout_minutes: 15
+          retry_on: error
+          command: pnpm fetch --ignore-scripts
 
   publish:
+    needs: setup-node_modules
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v2.4.0
@@ -29,25 +38,23 @@ jobs:
           node-version: "18"
           registry-url: "https://registry.npmjs.org"
           cache: "pnpm"
-      - name: Install modules
+      - name: Install dependencies
         uses: nick-fields/retry@v2.8.3
         with:
           max_attempts: 10
           timeout_minutes: 15
           retry_on: error
-          command: pnpm install
+          command: pnpm install --frozen-lockfile
       - name: Build package
         run: |
-          if [ -z "${{ inputs.package }}" ]
-          then
+          if ${{ inputs.package }}; then
             PATH="$(node ./scripts/get-package-from-tag.js '${{  github.ref_name }}')"
             cd ${PATH}
           fi
           pnpm build
       - name: Release package
         run: |
-          if [ -z "${{ inputs.package }}" ]
-          then
+          if ${{ inputs.package }}; then
             PATH="$(node ./scripts/get-package-from-tag.js '${{  github.ref_name }}')"
             cd ${PATH}
           fi
