@@ -16,6 +16,7 @@ module.exports = {
   },
   npm: {
     publish: false,
+    versionArgs: ['--workspaces false'],
   },
   github: {
     release: true,
