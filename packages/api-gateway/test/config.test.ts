@@ -1,5 +1,6 @@
 import Config from '../src/config';
 import { AppConfig } from '../typings/common';
+import { name, version } from '../package.json';
 import t from 'tap';
 
 t.test('test config', ({ same, end, equal }) => {
@@ -17,7 +18,7 @@ t.test('test config', ({ same, end, equal }) => {
 
   const config: AppConfig = Config();
   same(config, {
-    app: { name: '@bitify/api-gateway', version: '0.0.0' },
+    app: { name, version },
     auth: {
       exp2FAToken: '2m',
       expAccessToken: '15m',
