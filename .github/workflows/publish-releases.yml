@@ -40,6 +40,7 @@ jobs:
           node-version: "18"
           registry-url: "https://registry.npmjs.org"
           cache: "pnpm"
+          fetch-depth: 0
       - name: Install dependencies
         uses: nick-fields/retry@v2.8.3
         with:
@@ -51,8 +52,7 @@ jobs:
         run: |
           git config --global user.email "fasenderos@gmail.com"
           git config --global user.name "Andrea Fassina"
-          git config --global url."git@github.com:".insteadOf "https://github.com/"
-          if [! -z "${{ github.event.inputs.package }}" ];
+          if [ "${{ github.event.inputs.package }}" != "" ];
           then
             PATH="$(node ./scripts/get-package-from-tag.js '${{  github.ref_name }}')"
             if [! -z "$PATH" ]; then cd $PATH; fi
