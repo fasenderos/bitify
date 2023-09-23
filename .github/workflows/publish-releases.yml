@@ -3,7 +3,7 @@ name: Release & Publish
 on:
   push:
     tags:
-      - '@bitify*'
+      - 'v*'
 
 jobs:
   release:

@@ -5,7 +5,7 @@ const scope = packageName.split("/")[1];
 module.exports = {
   git: {
     push: true,
-    tagName: `${packageName}-v${version}`,
+    tagName: `v${version}-${packageName}`,
     tagAnnotation: `Release ${packageName} v${version}`,
     pushRepo: "git@github.com:fasenderos/bitify.git",
     commitsPath: ".",
@@ -19,7 +19,7 @@ module.exports = {
   },
   github: {
     release: true,
-    releaseName: `${packageName}-v${version}`,
+    releaseName: `v${version}-${packageName}`,
     commitArgs: ["-S"],
     tagArgs: ["-s"],
   },
