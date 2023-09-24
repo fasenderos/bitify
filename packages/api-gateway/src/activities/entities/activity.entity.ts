@@ -5,6 +5,9 @@ import { Collections } from '../../common/constants';
 @Entity({ name: Collections.ACTIVITIES })
 @Index(`index_${Collections.ACTIVITIES}_on_userId`, ['userId'])
 export class Activity extends BaseEntity {
+  @Column({ type: 'uuid' })
+  userId!: string;
+
   @Column()
   userIP!: string;
 

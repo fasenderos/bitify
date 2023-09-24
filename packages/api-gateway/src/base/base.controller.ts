@@ -34,7 +34,7 @@ import { SanitizeTrimPipe } from '../common/pipes/sanitize-trim.pipe';
  * updated and delete an entity protected by the Role Base ACL and the api documentaion.
  */
 export function ControllerFactory<
-  Entity extends BaseEntity,
+  Entity extends BaseEntity & { userId?: string },
   CreateDTO extends DeepPartial<Entity>,
   UpdateDTO extends QueryDeepPartialEntity<Entity>,
 >(
@@ -64,7 +64,7 @@ export function ControllerFactory<
   );
 
   class BaseController<
-    Entity extends BaseEntity,
+    Entity extends BaseEntity & { userId?: string },
     CreateDTO extends DeepPartial<Entity>,
     UpdateDTO extends QueryDeepPartialEntity<Entity>,
   > implements IBaseController<Entity, CreateDTO, UpdateDTO>
@@ -149,8 +149,6 @@ export function ControllerFactory<
         id,
         userId: user.id,
       } as unknown as FindOptionsWhere<Entity>);
-      // We don't wont to give much info, so always return not found
-      // even if the user is trying to get a resource of another user
       if (!entity) throw new NotFoundException();
 
       return entity;
@@ -224,14 +222,9 @@ export function ControllerFactory<
       @Body() dto: UpdateDTO,
       @CurrentUser() user: User,
     ): Promise<void> {
-      const entity = await this.service.findById(id);
-      // We don't wont to give much info, so always return not found
-      // even if the user is trying to update a resource of another user
-      if (!entity || (entity.userId && entity.userId !== user.id))
-        throw new NotFoundException();
-
       // Update owned resource
-      await this.service.updateById(id, dto, user.id);
+      const result = await this.service.updateById(id, dto, user.id);
+      if (result.affected === 0) throw new NotFoundException();
     }
 
     /**
@@ -266,15 +259,9 @@ export function ControllerFactory<
       @Param('id', ParseUUIDPipe) id: string,
       @CurrentUser() user: User,
     ): Promise<void> {
-      const entity = await this.service.findById(id);
-
-      // We don't wont to give much info, so always return not found
-      // even if the user is trying to delete a resource of another user
-      if (!entity || (entity.userId && entity.userId !== user.id))
-        throw new NotFoundException();
-
       // Delete owned resource
-      await this.service.deleteById(id, user.id);
+      const result = await this.service.deleteById(id, user.id);
+      if (result.affected === 0) throw new NotFoundException();
     }
   }
 

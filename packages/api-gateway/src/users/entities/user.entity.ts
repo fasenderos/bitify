@@ -1,20 +1,10 @@
-import {
-  Column,
-  CreateDateColumn,
-  DeleteDateColumn,
-  Entity,
-  Index,
-  PrimaryGeneratedColumn,
-  UpdateDateColumn,
-} from 'typeorm';
+import { Column, Entity, Index } from 'typeorm';
 import { Collections, UserState } from '../../common/constants';
 import { UserRole } from '../../app.roles';
+import { BaseEntity } from '../../base/base.entity';
 
 @Entity({ name: Collections.USERS })
-export class User {
-  @PrimaryGeneratedColumn('uuid')
-  id!: string;
-
+export class User extends BaseEntity {
   @Index('index_users_on_email', { unique: true })
   @Column()
   email!: string;
@@ -58,13 +48,4 @@ export class User {
 
   @Column('timestamptz', { nullable: true, select: false })
   verifyExpire!: Date | null;
-
-  @CreateDateColumn({ type: 'timestamptz', default: () => 'CURRENT_TIMESTAMP' })
-  createdAt!: Date;
-
-  @UpdateDateColumn({ type: 'timestamptz', default: () => 'CURRENT_TIMESTAMP' })
-  updatedAt!: Date;
-
-  @DeleteDateColumn({ type: 'timestamptz', nullable: true })
-  deletedAt!: Date | null;
 }

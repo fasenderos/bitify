@@ -5,6 +5,9 @@ import { Collections } from '../../common/constants';
 @Entity({ name: Collections.PROFILES })
 @Index(`index_${Collections.PROFILES}_on_userId`, ['userId'])
 export class Profile extends BaseEntity {
+  @Column({ type: 'uuid' })
+  userId!: string;
+
   @Column('varchar', { nullable: true })
   firstName!: string | null;
 

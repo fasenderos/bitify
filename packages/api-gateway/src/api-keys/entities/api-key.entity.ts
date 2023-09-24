@@ -11,6 +11,9 @@ export enum ApiKeyType {
 @Entity({ name: Collections.APIKEYS })
 @Index(`index_${Collections.APIKEYS}_on_userId`, ['userId'])
 export class ApiKey extends BaseEntity {
+  @Column({ type: 'uuid' })
+  userId!: string;
+
   @Column({ unique: true })
   public!: string;
 
