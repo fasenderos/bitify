@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { BaseService } from '../base/base.service';
 import { ApiKey, ApiKeyType } from './entities/api-key.entity';
-import { Repository } from 'typeorm';
+import { Repository, UpdateResult } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateApiKeyDto } from './dto/create-api-key.dto';
 import { UpdateApiKeyDto } from './dto/update-api-key.dto';
@@ -45,16 +45,16 @@ export class ApiKeysService extends BaseService<
     return apikey;
   }
 
-  override async updateById(
+  override updateById(
     id: string,
     data: UpdateApiKeyDto,
     userId?: string,
-  ): Promise<void> {
+  ): Promise<UpdateResult> {
     const update: QueryDeepPartialEntity<ApiKey> = { ...data };
     // If userIps is `null`, means that user have
     // removed the IPs, so we have to update the apikey expiration
     if (data.userIps === null) this.setExpiration(update);
-    await this.repo.update(
+    return this.repo.update(
       {
         id,
         ...(userId ? { userId: userId } : /* istanbul ignore next */ {}),

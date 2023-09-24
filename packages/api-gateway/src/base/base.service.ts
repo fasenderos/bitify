@@ -1,8 +1,10 @@
 import {
   DeepPartial,
+  DeleteResult,
   FindManyOptions,
   FindOptionsWhere,
   Repository,
+  UpdateResult,
 } from 'typeorm';
 import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity';
 import { BaseEntity } from './base.entity';
@@ -82,15 +84,15 @@ export abstract class BaseService<
    * @param {FindOptionsWhere<Entity>} filter The matching conditions for updating
    * @param {UpdateDTO} data The payload to update the entity
    */
-  async update(
+  update(
     filter: FindOptionsWhere<Entity>,
     data: UpdateDTO,
-  ): Promise<void> {
+  ): Promise<UpdateResult> {
     // @ts-expect-error Dto should not have userId, but we check anyway at runtime
     if (data.userId)
       throw new UnprocessableEntityException('Ownership can not be changed');
 
-    await this.repo.update(filter, data);
+    return this.repo.update(filter, data);
   }
 
   /**
@@ -100,16 +102,16 @@ export abstract class BaseService<
    * @param {UpdateDTO} data The payload to update the entity
    * @param {string} userId The userId of the user owner of the resource
    */
-  async updateById(
+  updateById(
     id: string,
     data: UpdateDTO,
     userId?: string,
-  ): Promise<void> {
+  ): Promise<UpdateResult> {
     // @ts-expect-error Dto should not have userId, but we check anyway at runtime
     if (data.userId)
       throw new UnprocessableEntityException('Ownership can not be changed');
 
-    await this.repo.update(
+    return this.repo.update(
       {
         id,
         ...(userId ? { userId: userId } : {}),
@@ -125,8 +127,8 @@ export abstract class BaseService<
    * @param {FindOptionsWhere<Entity>} filter The matching conditions for updating
    * @param {boolean} soft When true a soft delete is performed otherwise a real delete.
    */
-  async delete(filter: FindOptionsWhere<Entity>, soft = true): Promise<void> {
-    await this.repo[soft ? 'softDelete' : 'delete'](filter);
+  delete(filter: FindOptionsWhere<Entity>, soft = true): Promise<DeleteResult> {
+    return this.repo[soft ? 'softDelete' : 'delete'](filter);
   }
 
   /**
@@ -137,8 +139,8 @@ export abstract class BaseService<
    * @param {string} userId The userId of the user owner of the resource
    * @param {boolean} soft When true a soft delete is performed otherwise a real delete.
    */
-  async deleteById(id: string, userId?: string, soft = true): Promise<void> {
-    await this.repo[soft ? 'softDelete' : 'delete']({
+  deleteById(id: string, userId?: string, soft = true): Promise<DeleteResult> {
+    return this.repo[soft ? 'softDelete' : 'delete']({
       id,
       ...(userId ? { userId: userId } : {}),
     } as FindOptionsWhere<Entity>);

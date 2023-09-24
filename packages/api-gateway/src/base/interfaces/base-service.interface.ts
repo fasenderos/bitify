@@ -1,9 +1,15 @@
-import { DeepPartial, FindManyOptions, FindOptionsWhere } from 'typeorm';
+import {
+  DeepPartial,
+  DeleteResult,
+  FindManyOptions,
+  FindOptionsWhere,
+  UpdateResult,
+} from 'typeorm';
 import { BaseEntity } from '../base.entity';
 import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity';
 
 export interface IBaseService<
-  T extends BaseEntity,
+  T extends BaseEntity & { userId?: string },
   C extends DeepPartial<T>,
   U extends QueryDeepPartialEntity<T>,
 > {
@@ -12,8 +18,12 @@ export interface IBaseService<
   find(options?: FindManyOptions<T>): Promise<T[]>;
   findOne(filter: FindOptionsWhere<T>, unselected?: boolean): Promise<T | null>;
   findById(id: string, unselected?: boolean): Promise<T | null>;
-  update(filter: FindOptionsWhere<T>, data: U): Promise<void>;
-  updateById(id: string, data: U, userId?: string): Promise<void>;
-  delete(filter: FindOptionsWhere<T>, soft?: boolean): Promise<void>;
-  deleteById(id: string, userId?: string, soft?: boolean): Promise<void>;
+  update(filter: FindOptionsWhere<T>, data: U): Promise<UpdateResult>;
+  updateById(id: string, data: U, userId?: string): Promise<UpdateResult>;
+  delete(filter: FindOptionsWhere<T>, soft?: boolean): Promise<DeleteResult>;
+  deleteById(
+    id: string,
+    userId?: string,
+    soft?: boolean,
+  ): Promise<DeleteResult>;
 }
