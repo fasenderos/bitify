@@ -18,7 +18,7 @@ jobs:
         with:
           node-version: 20
           cache: "pnpm"
-      - uses: "nick-fields/retry@v2.8.3"
+      - uses: "nick-fields/retry@v2.9.0"
         with:
           max_attempts: 10
           timeout_minutes: 15
@@ -50,7 +50,7 @@ jobs:
           git config user.name "fasenderos"
           git config user.email "fasenderos@gmail.com"
       - name: Install dependencies
-        uses: nick-fields/retry@v2.8.3
+        uses: nick-fields/retry@v2.9.0
         with:
           max_attempts: 10
           timeout_minutes: 15
