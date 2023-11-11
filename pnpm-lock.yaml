@@ -27,8 +27,8 @@ importers:
   libs/release-it:
     devDependencies:
       '@release-it/conventional-changelog':
-        specifier: ^7.0.2
-        version: 7.0.2(release-it@16.1.5)
+        specifier: ^8.0.0
+        version: 8.0.0(release-it@16.1.5)
       prettier:
         specifier: ^3.0.2
         version: 3.0.3
@@ -75,8 +75,8 @@ importers:
         specifier: ^10.0.0
         version: 10.0.0(@nestjs/common@10.2.6)(@nestjs/core@10.2.6)(reflect-metadata@0.1.13)(rxjs@7.8.1)(typeorm@0.3.17)
       '@release-it/conventional-changelog':
-        specifier: ^7.0.2
-        version: 7.0.2(release-it@16.1.5)
+        specifier: ^8.0.0
+        version: 8.0.0(release-it@16.1.5)
       bcrypt:
         specifier: ^5.1.1
         version: 5.1.1
@@ -149,7 +149,7 @@ importers:
     devDependencies:
       '@bitify/release-it':
         specifier: '*'
-        version: 0.0.2
+        version: link:../../libs/release-it
       '@nestjs/cli':
         specifier: ^10.0.0
         version: 10.1.18
@@ -579,10 +579,6 @@ packages:
       '@babel/helper-string-parser': 7.22.5
       '@babel/helper-validator-identifier': 7.22.20
       to-fast-properties: 2.0.0
-
-  /@bitify/release-it@0.0.2:
-    resolution: {integrity: sha512-LGLMiRNQGOj4S34gLslj3HSd9fQJfxvMbTqCzIdYHxaws07LYEhsKxtF+pFzSShkY6ZASHQm9ar6v1vFIuwleQ==}
-    dev: true
 
   /@colors/colors@1.5.0:
     resolution: {integrity: sha512-ooWCrlZP11i8GImSjTHYHLkvFDP48nS4+204nGb1RiX/WXYHmJA2III9/e2DWVabCESdW7hBAEzHRqUn9OUVvQ==}
@@ -1397,15 +1393,15 @@ packages:
       '@pnpm/network.ca-file': 1.0.2
       config-chain: 1.1.13
 
-  /@release-it/conventional-changelog@7.0.2(release-it@16.1.5):
-    resolution: {integrity: sha512-rsUKWNnU39xivgC2IanjRkEOPsTu2X2jgJGpNHF+mndpOUr1WAROmIaix1o3ne2zseT+GLyZII2NC8FgYaM7xA==}
-    engines: {node: '>=16'}
+  /@release-it/conventional-changelog@8.0.0(release-it@16.1.5):
+    resolution: {integrity: sha512-0ItVcp3KRIfI6SMaq7i0sWngVwqxsZqZih5F/4mdzZh0gJEgjMixaICVYGPmVX+pLM6eaUuCVQHtC7IEqO6ycg==}
+    engines: {node: '>=18'}
     peerDependencies:
-      release-it: ^16.0.0
+      release-it: ^17.0.0
     dependencies:
       concat-stream: 2.0.0
       conventional-changelog: 5.1.0
-      conventional-recommended-bump: 8.0.0
+      conventional-recommended-bump: 9.0.0
       release-it: 16.1.5
       semver: 7.5.4
 
@@ -2889,17 +2885,16 @@ packages:
       meow: 12.1.1
       split2: 4.2.0
 
-  /conventional-recommended-bump@8.0.0:
-    resolution: {integrity: sha512-yvGN+VMy00WIe/pJufpmN+I4B2cM/WFK+CFCmDcjyVLyQR6J1KT2iecmA4NQ58gQAiNkvStEjcZp/W9h1JDM1A==}
+  /conventional-recommended-bump@9.0.0:
+    resolution: {integrity: sha512-HR1yD0G5HgYAu6K0wJjLd7QGRK8MQDqqj6Tn1n/ja1dFwBCE6QmV+iSgQ5F7hkx7OUR/8bHpxJqYtXj2f/opPQ==}
     engines: {node: '>=16'}
     hasBin: true
     dependencies:
-      concat-stream: 2.0.0
       conventional-changelog-preset-loader: 4.1.0
       conventional-commits-filter: 4.0.0
       conventional-commits-parser: 5.0.0
       git-raw-commits: 4.0.0
-      git-semver-tags: 6.0.0
+      git-semver-tags: 7.0.1
       meow: 12.1.1
 
   /convert-source-map@1.9.0:
@@ -4102,6 +4097,7 @@ packages:
 
   /function-bind@1.1.1:
     resolution: {integrity: sha512-yIovAzMX49sF8Yl58fSCWJ5svSLuaibPxXQJFLmBObTuCr0Mf1KiPopGM9NiFjiYBCbfaa2Fh6breQ6ANVTI0A==}
+    requiresBuild: true
 
   /function-loop@2.0.1:
     resolution: {integrity: sha512-ktIR+O6i/4h+j/ZhZJNdzeI4i9lEPeEK6UPR2EVyTVBqOwcU3Za9xYKLH64ZR9HmcROyRrOkizNyjjtWJzDDkQ==}
@@ -4217,14 +4213,6 @@ packages:
       dargs: 8.1.0
       meow: 12.1.1
       split2: 4.2.0
-
-  /git-semver-tags@6.0.0:
-    resolution: {integrity: sha512-v5BL6psuUy+Ftuo99141XlOIDoJtKw5+YyDANS7fknSP0iT4cVIanc3toDsH4K+VpIWc19l2/xkwQmXMfloeUA==}
-    engines: {node: '>=16'}
-    hasBin: true
-    dependencies:
-      meow: 12.1.1
-      semver: 7.5.4
 
   /git-semver-tags@7.0.1:
     resolution: {integrity: sha512-NY0ZHjJzyyNXHTDZmj+GG7PyuAKtMsyWSwh07CR2hOZFa+/yoTsXci/nF2obzL8UDhakFNkD9gNdt/Ed+cxh2Q==}
