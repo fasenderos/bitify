@@ -12,7 +12,7 @@
     "release": "release-it --ci"
   },
   "devDependencies": {
-    "@release-it/conventional-changelog": "^7.0.2",
+    "@release-it/conventional-changelog": "^8.0.0",
     "prettier": "^3.0.2",
     "release-it": "^16.1.5"
   }
