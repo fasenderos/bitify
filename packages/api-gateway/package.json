@@ -71,7 +71,7 @@
     "sanitize-html": "^2.11.0",
     "timestring": "^7.0.0",
     "typeorm": "^0.3.17",
-    "undici": "^5.22.1"
+    "undici": "^6.0.0"
   },
   "devDependencies": {
     "@bitify/release-it": "*",
