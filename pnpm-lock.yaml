@@ -9,8 +9,8 @@ importers:
   .:
     devDependencies:
       '@tsconfig/node-lts':
-        specifier: ^18.12.3
-        version: 18.12.5
+        specifier: ^20.0.0
+        version: 20.1.0
       '@tsconfig/strictest':
         specifier: ^2.0.1
         version: 2.0.2
@@ -149,7 +149,7 @@ importers:
     devDependencies:
       '@bitify/release-it':
         specifier: '*'
-        version: 0.0.2
+        version: link:../../libs/release-it
       '@nestjs/cli':
         specifier: ^10.0.0
         version: 10.1.18
@@ -579,10 +579,6 @@ packages:
       '@babel/helper-string-parser': 7.22.5
       '@babel/helper-validator-identifier': 7.22.20
       to-fast-properties: 2.0.0
-
-  /@bitify/release-it@0.0.2:
-    resolution: {integrity: sha512-LGLMiRNQGOj4S34gLslj3HSd9fQJfxvMbTqCzIdYHxaws07LYEhsKxtF+pFzSShkY6ZASHQm9ar6v1vFIuwleQ==}
-    dev: true
 
   /@colors/colors@1.5.0:
     resolution: {integrity: sha512-ooWCrlZP11i8GImSjTHYHLkvFDP48nS4+204nGb1RiX/WXYHmJA2III9/e2DWVabCESdW7hBAEzHRqUn9OUVvQ==}
@@ -1442,8 +1438,8 @@ packages:
   /@tootallnate/quickjs-emscripten@0.23.0:
     resolution: {integrity: sha512-C5Mc6rdnsaJDjO3UpGW/CQTHtCKaYlScZTly4JIu97Jxo/odCiH0ITnDXSJPTOrEKk/ycSZ0AOgTmkDtkOsvIA==}
 
-  /@tsconfig/node-lts@18.12.5:
-    resolution: {integrity: sha512-KJZX0kQ5FBv77WDVzmQ9y1dUjaJCNXAAz3LSsg5cMwH0AUijVdDQtII+IVprEXdb13U9GjVOBxBzyRvr/ozPxw==}
+  /@tsconfig/node-lts@20.1.0:
+    resolution: {integrity: sha512-3w2D9MfGdqBL51pHB5nGFmGtXBn1gbO+n9xzwcGSvZPArtCn4tElk+6EeelLXispAeqv13GAgbzkgLNHtoxOCQ==}
     dev: true
 
   /@tsconfig/node10@1.0.9:
@@ -6862,6 +6858,7 @@ packages:
 
   /path-parse@1.0.7:
     resolution: {integrity: sha512-LDJzPVEEEPR+y48z93A0Ed0yXb8pAByGWo/k5YYdYgpY2/2EsOsksJrq7lOHxryrVOn1ejG6oAp8ahvOIQD8sw==}
+    requiresBuild: true
 
   /path-scurry@1.10.1:
     resolution: {integrity: sha512-MkhCqzzBEpPvxxQ71Md0b1Kk51W01lrYvlMzSUaIzNsODdd7mqhiimSZlr+VegAz5Z6Vzt9Xg2ttE//XBhH3EQ==}
@@ -8158,6 +8155,7 @@ packages:
   /supports-preserve-symlinks-flag@1.0.0:
     resolution: {integrity: sha512-ot0WnXS9fgdkgIcePe6RHNk1WA8+muPa6cSjeR3V8K27q9BB1rTE3R1p7Hv0z1ZyAc8s6Vvv8DIyWf681MAt0w==}
     engines: {node: '>= 0.4'}
+    requiresBuild: true
 
   /swagger-ui-dist@5.7.2:
     resolution: {integrity: sha512-mVZc9QVQ6pTCV5crli3+Ng+DoMPwdtMHK8QLk2oX8Mtamp4D/hV+uYdC3lV0JZrDgpNEcjs0RrWTqMwwosuLPQ==}
