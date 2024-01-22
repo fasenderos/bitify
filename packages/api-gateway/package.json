@@ -13,7 +13,6 @@
     "lint": "eslint",
     "lint:fix": "eslint --fix",
     "migration:create": "pnpm build && npx typeorm migration:create",
-    "migration:drop": "pnpm typeorm schema:drop",
     "migration:generate": "pnpm typeorm migration:generate",
     "migration:revert": "pnpm typeorm migration:revert",
     "migration:run": "pnpm typeorm migration:run",
@@ -35,7 +34,8 @@
     "test:ci": "pnpm pretest && tap --ts --coverage && tap --coverage-report=lcov",
     "test:cov": "pnpm pretest && tap --ts --coverage",
     "test:dev": "pnpm pretest && tap --ts --watch --coverage",
-    "typeorm": "pnpm build && npx typeorm -d ./dist/database/data-source.js"
+    "typeorm": "pnpm build && npx typeorm -d ./dist/database/data-source.js",
+    "typeorm:drop": "pnpm typeorm schema:drop"
   },
   "author": "Andrea Fassina <andrea.fassina82@gmail.com>",
   "repository": {

@@ -1,5 +1,5 @@
 import { test } from 'tap';
-import { buildServer, createUser } from '../helper';
+import { buildServer, createUser, removeUser } from '../helper';
 import { UnprocessableEntityException } from '@nestjs/common';
 import { RecoveryTokensService } from '../../src/recovery-tokens/recovery-tokens.service';
 import { RecoveryToken } from '../../src/recovery-tokens/entities/recovery-token.entity';
@@ -30,6 +30,8 @@ test('base service creatEntity() and save() method', async ({
   // test save() method with right param
   const token = await service.save(tokenEntity);
   equal(token instanceof RecoveryToken, true);
+
+  await removeUser(user.id, app);
 });
 
 test('base service find() method', async ({ equal, teardown }) => {
@@ -68,6 +70,7 @@ test('base service find() method', async ({ equal, teardown }) => {
     equal(Array.isArray(res), true);
     equal(res.length, 1);
   }
+  await removeUser(user.id, app);
 });
 
 test('base service findOne() method', async ({ equal, teardown }) => {
@@ -96,6 +99,7 @@ test('base service findOne() method', async ({ equal, teardown }) => {
     equal(res instanceof RecoveryToken, true);
     equal(res?.id, token.id);
   }
+  await removeUser(user.id, app);
 });
 
 test('base service findById() method', async ({ equal, teardown }) => {
@@ -124,6 +128,7 @@ test('base service findById() method', async ({ equal, teardown }) => {
     equal(res instanceof RecoveryToken, true);
     equal(res?.id, token.id);
   }
+  await removeUser(user.id, app);
 });
 
 test('base service update() method', async ({ equal, teardown }) => {
@@ -157,6 +162,7 @@ test('base service update() method', async ({ equal, teardown }) => {
       equal(error instanceof UnprocessableEntityException, true);
     }
   }
+  await removeUser(user.id, app);
 });
 
 test('base service updateById() method', async ({ equal, teardown }) => {
@@ -204,6 +210,7 @@ test('base service updateById() method', async ({ equal, teardown }) => {
       equal(error instanceof UnprocessableEntityException, true);
     }
   }
+  await removeUser(user.id, app);
 });
 
 test('base service delete() method', async ({ equal, teardown }) => {
@@ -247,6 +254,7 @@ test('base service delete() method', async ({ equal, teardown }) => {
       equal(response, null);
     }
   }
+  await removeUser(user.id, app);
 });
 
 test('base service deleteById() method', async ({ equal, teardown }) => {
@@ -304,4 +312,5 @@ test('base service deleteById() method', async ({ equal, teardown }) => {
       equal(response, null);
     }
   }
+  await removeUser(user.id, app);
 });

@@ -3,13 +3,13 @@ import {
   DeleteResult,
   FindManyOptions,
   FindOptionsWhere,
+  ObjectLiteral,
   UpdateResult,
 } from 'typeorm';
-import { BaseEntity } from '../base.entity';
 import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity';
 
 export interface IBaseService<
-  T extends BaseEntity & { userId?: string },
+  T extends ObjectLiteral & { userId?: string },
   C extends DeepPartial<T>,
   U extends QueryDeepPartialEntity<T>,
 > {

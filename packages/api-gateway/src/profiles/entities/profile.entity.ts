@@ -2,9 +2,11 @@ import { Column, Entity, Index } from 'typeorm';
 import { BaseEntity } from '../../base/base.entity';
 import { Collections } from '../../common/constants';
 
-@Entity({ name: Collections.PROFILES })
-@Index(`index_${Collections.PROFILES}_on_userId`, ['userId'])
+const { PROFILES } = Collections;
+
+@Entity({ name: PROFILES })
 export class Profile extends BaseEntity {
+  @Index(`index_${PROFILES}_on_userId`)
   @Column({ type: 'uuid' })
   userId!: string;
 

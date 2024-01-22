@@ -24,5 +24,5 @@ export class Activity extends BaseEntity {
   result!: string;
 
   @Column({ type: 'text', nullable: true })
-  data?: string | null;
+  data!: string | null;
 }

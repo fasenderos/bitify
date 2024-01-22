@@ -1,25 +1,18 @@
 import { Column, Entity, Index } from 'typeorm';
 import { Collections, UserState } from '../../common/constants';
-import { UserRole } from '../../app.roles';
 import { BaseEntity } from '../../base/base.entity';
+import { AppRole } from '../../app.roles';
 
-@Entity({ name: Collections.USERS })
+const { USERS } = Collections;
+
+@Entity({ name: USERS })
 export class User extends BaseEntity {
-  @Index('index_users_on_email', { unique: true })
+  @Index(`index_${USERS}_on_email`, { unique: true })
   @Column()
   email!: string;
 
   @Column({ select: false })
   passwordHash!: string;
-
-  /**
-   * superadmin = has an access to the whole system without any limits
-   * admin = has nearly full access except managing permissions
-   * support
-   * member
-   */
-  @Column({ default: UserRole.MEMBER })
-  roles!: string;
 
   /**
    * Level 0 is default account level
@@ -31,8 +24,8 @@ export class User extends BaseEntity {
   level!: number;
 
   /** active (1), pending (0), banned (-1) */
-  @Column({ default: UserState.PENDING })
-  state!: number;
+  @Column({ type: 'smallint', default: UserState.PENDING })
+  state!: UserState;
 
   @Column('uuid', { nullable: true })
   referralId!: string | null;
@@ -48,4 +41,7 @@ export class User extends BaseEntity {
 
   @Column('timestamptz', { nullable: true, select: false })
   verifyExpire!: Date | null;
+
+  // This is not a column, it is setted on authenthication
+  roles?: AppRole[];
 }

@@ -1,5 +1,5 @@
 import { test } from 'tap';
-import { buildServer, createUser } from '../helper';
+import { buildServer, createUser, removeUser } from '../helper';
 import { HttpStatus } from '@nestjs/common';
 import { ApiKey } from '../../src/api-keys/entities/api-key.entity';
 import { HttpClient } from '../http-client';
@@ -60,6 +60,8 @@ test('shoul create api key', async ({ equal, teardown }) => {
   equal(second.notes, mockBody.notes);
   // When there is no ip, api key expires in 90 days
   equal(new Date(second.expiresAt).getTime() > Date.now(), true);
+
+  await removeUser(user.id, app);
 });
 
 test('shoul find owned api keys', async ({ equal, teardown }) => {
@@ -152,6 +154,9 @@ test('shoul find owned api keys', async ({ equal, teardown }) => {
     equal(res.body.length, 1);
     equal(res.body[0].id, apiKeyUser2.body.id);
   }
+
+  await removeUser(user1.id, app);
+  await removeUser(user2.id, app);
 });
 
 test('shoul update owned api keys', async ({ equal, teardown }) => {
@@ -234,6 +239,9 @@ test('shoul update owned api keys', async ({ equal, teardown }) => {
     );
     equal(res.statusCode, HttpStatus.NOT_FOUND);
   }
+
+  await removeUser(user1.id, app);
+  await removeUser(user2.id, app);
 });
 
 test('shoul delete owned api keys', async ({ equal, teardown }) => {
@@ -285,4 +293,7 @@ test('shoul delete owned api keys', async ({ equal, teardown }) => {
     const deleted = await http.get(`/apikeys/${apiKeyUser2.body.id}`, auth2);
     equal(deleted.statusCode, HttpStatus.NOT_FOUND);
   }
+
+  await removeUser(user1.id, app);
+  await removeUser(user2.id, app);
 });

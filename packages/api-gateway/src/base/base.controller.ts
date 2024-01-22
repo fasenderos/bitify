@@ -14,13 +14,20 @@ import {
   UsePipes,
 } from '@nestjs/common';
 import { AbstractValidationPipe } from '../common/pipes/abstract-validation.pipe';
-import { IBaseController } from './interfaces/base-controller.interface';
+import {
+  BaseCrudOptions,
+  IBaseController,
+} from './interfaces/base-controller.interface';
 import { IBaseService } from './interfaces/base-service.interface';
-import { BaseEntity } from './base.entity';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { JwtGuard } from '../auth/guards/jwt.guard';
-import { UserRole } from '../app.roles';
-import { DeepPartial, FindManyOptions, FindOptionsWhere } from 'typeorm';
+import { AppRole } from '../app.roles';
+import {
+  DeepPartial,
+  FindManyOptions,
+  FindOptionsWhere,
+  ObjectLiteral,
+} from 'typeorm';
 import { Collections } from '../common/constants';
 import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity';
 import { ApiBearerAuth, ApiResponse } from '@nestjs/swagger';
@@ -34,13 +41,14 @@ import { SanitizeTrimPipe } from '../common/pipes/sanitize-trim.pipe';
  * updated and delete an entity protected by the Role Base ACL and the api documentaion.
  */
 export function ControllerFactory<
-  Entity extends BaseEntity & { userId?: string },
+  Entity extends ObjectLiteral & { userId?: string },
   CreateDTO extends DeepPartial<Entity>,
   UpdateDTO extends QueryDeepPartialEntity<Entity>,
 >(
   createDto: Type<CreateDTO>,
   updateDto: Type<UpdateDTO>,
   resource: Collections,
+  options?: BaseCrudOptions<Entity>,
 ): Type<IBaseController<Entity, CreateDTO, UpdateDTO>> {
   const createPipe = new AbstractValidationPipe(
     {
@@ -63,8 +71,11 @@ export function ControllerFactory<
     { body: updateDto },
   );
 
+  const visibility = options?.visibility;
+  const belongsToUser = options?.belongsToUser;
+
   class BaseController<
-    Entity extends BaseEntity & { userId?: string },
+    Entity extends ObjectLiteral & { userId?: string },
     CreateDTO extends DeepPartial<Entity>,
     UpdateDTO extends QueryDeepPartialEntity<Entity>,
   > implements IBaseController<Entity, CreateDTO, UpdateDTO>
@@ -141,13 +152,15 @@ export function ControllerFactory<
       @CurrentUser() user: User,
     ): Promise<Entity | null> {
       // Admin can view any resource
-      if (user.roles.includes(UserRole.ADMIN)) {
+      if (user.roles?.includes(AppRole.ADMIN)) {
         return this.service.findById(id);
       }
+
       // Member can view owned resource only
       const entity = await this.service.findOne({
         id,
-        userId: user.id,
+        ...(belongsToUser ? { userId: user.id } : {}),
+        ...(visibility ? visibility : {}),
       } as unknown as FindOptionsWhere<Entity>);
       if (!entity) throw new NotFoundException();
 
@@ -178,12 +191,15 @@ export function ControllerFactory<
     })
     findAll(@CurrentUser() user: User): Promise<Entity[]> {
       // Admin can view any resources
-      if (user.roles.includes(UserRole.ADMIN)) {
+      if (user.roles?.includes(AppRole.ADMIN)) {
         return this.service.find();
       }
       // Member can view owned resources only
       return this.service.find({
-        where: { userId: user.id },
+        where: {
+          ...(belongsToUser ? { userId: user.id } : {}),
+          ...(visibility ? visibility : {}),
+        },
       } as unknown as FindManyOptions<Entity>);
     }
 
