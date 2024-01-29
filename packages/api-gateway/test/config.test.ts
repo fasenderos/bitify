@@ -1,7 +1,7 @@
 import Config from '../src/config';
-import { AppConfig } from '../typings/common';
 import { name, version } from '../package.json';
 import t from 'tap';
+import { AppConfig } from '../src/common/interfaces';
 
 t.test('test config', ({ same, end, equal }) => {
   // Without required params should throw err

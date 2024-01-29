@@ -1,31 +1,30 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
-import { Role } from '../../src/acl/roles/role.entity';
-import { AppRole } from '../../src/app.roles';
+// import { Role } from '../../src/acl/roles/role.entity';
+// import { UserRole } from '../../src/app.roles';
 import { User } from '../../src/users/entities/user.entity';
 import { hash } from 'bcrypt';
-import { UserRole } from '../../src/acl/user-roles/user-role.entity';
 
 export class Seed1697284198292 implements MigrationInterface {
   name = 'Seed1697284198292';
 
   public async up(queryRunner: QueryRunner): Promise<void> {
     // Create roles
-    await queryRunner.manager
-      .createQueryBuilder()
-      .insert()
-      .into(Role)
-      .values(
-        Object.values(AppRole).map((role) => ({
-          name: role,
-        })),
-      )
-      .execute();
+    // await queryRunner.manager
+    //   .createQueryBuilder()
+    //   .insert()
+    //   .into(Role)
+    //   .values(
+    //     Object.values(UserRole).map((role) => ({
+    //       name: role,
+    //     })),
+    //   )
+    //   .execute();
 
-    const roles = await queryRunner.manager.find(Role);
-    const rolesMap: Record<AppRole, string> = {} as Record<AppRole, string>;
-    roles.forEach((role) => {
-      rolesMap[role.name as AppRole] = role.id;
-    });
+    // const roles = await queryRunner.manager.find(Role);
+    // const rolesMap: Record<UserRole, string> = {} as Record<UserRole, string>;
+    // roles.forEach((role) => {
+    //   rolesMap[role.name as UserRole] = role.id;
+    // });
 
     const superAdmin = {
       email: 'superadmin@bitify.com',
@@ -41,28 +40,29 @@ export class Seed1697284198292 implements MigrationInterface {
       passwordHash: await hash('member', 10),
     };
 
-    const createdUser = await queryRunner.manager
+    // const createdUser =
+    await queryRunner.manager
       .createQueryBuilder()
       .insert()
       .into(User)
       .values([superAdmin, member])
       .execute();
 
-    await queryRunner.manager
-      .createQueryBuilder()
-      .insert()
-      .into(UserRole)
-      .values([
-        {
-          roleId: rolesMap[AppRole.SUPERADMIN],
-          userId: createdUser.identifiers[0]?.['id'],
-        },
-        {
-          roleId: rolesMap[AppRole.MEMBER],
-          userId: createdUser.identifiers[1]?.['id'],
-        },
-      ])
-      .execute();
+    // await queryRunner.manager
+    //   .createQueryBuilder()
+    //   .insert()
+    //   .into(UserRole)
+    //   .values([
+    //     {
+    //       roleId: rolesMap[UserRole.SUPERADMIN],
+    //       userId: createdUser.identifiers[0]?.['id'],
+    //     },
+    //     {
+    //       roleId: rolesMap[UserRole.MEMBER],
+    //       userId: createdUser.identifiers[1]?.['id'],
+    //     },
+    //   ])
+    //   .execute();
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {

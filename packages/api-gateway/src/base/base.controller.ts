@@ -21,7 +21,7 @@ import {
 import { IBaseService } from './interfaces/base-service.interface';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { JwtGuard } from '../auth/guards/jwt.guard';
-import { AppRole } from '../app.roles';
+import { UserRole } from '../app.roles';
 import {
   DeepPartial,
   FindManyOptions,
@@ -152,7 +152,7 @@ export function ControllerFactory<
       @CurrentUser() user: User,
     ): Promise<Entity | null> {
       // Admin can view any resource
-      if (user.roles?.includes(AppRole.ADMIN)) {
+      if (user.roles?.includes(UserRole.ADMIN)) {
         return this.service.findById(id);
       }
 
@@ -191,7 +191,7 @@ export function ControllerFactory<
     })
     findAll(@CurrentUser() user: User): Promise<Entity[]> {
       // Admin can view any resources
-      if (user.roles?.includes(AppRole.ADMIN)) {
+      if (user.roles?.includes(UserRole.ADMIN)) {
         return this.service.find();
       }
       // Member can view owned resources only

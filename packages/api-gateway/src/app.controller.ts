@@ -6,7 +6,6 @@ import {
   Post,
   UseGuards,
 } from '@nestjs/common';
-import { EmptyObject } from '../typings/common';
 import {
   HealthCheck,
   HealthCheckResult,
@@ -15,6 +14,7 @@ import {
 } from '@nestjs/terminus';
 import { ApiOkResponse, ApiOperation } from '@nestjs/swagger';
 import { ApiKeyGuard } from './auth/guards/api-key.guard';
+import { EmptyObject } from './common/types';
 
 @Controller()
 export class AppController {

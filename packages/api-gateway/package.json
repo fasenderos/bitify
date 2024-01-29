@@ -6,8 +6,8 @@
     "access": "public"
   },
   "scripts": {
-    "build": "pnpm clean && nest build",
-    "clean": "rm -rf coverage dist .nyc_output",
+    "build": "nest build",
+    "clean": "rm -rf .tap dist",
     "format": "prettier --list-different .",
     "format:fix": "prettier --write .",
     "lint": "eslint",

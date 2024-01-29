@@ -1,7 +1,7 @@
 import { Column, Entity, Index } from 'typeorm';
 import { Collections, UserState } from '../../common/constants';
 import { BaseEntity } from '../../base/base.entity';
-import { AppRole } from '../../app.roles';
+import { UserRole } from '../../app.roles';
 
 const { USERS } = Collections;
 
@@ -42,6 +42,13 @@ export class User extends BaseEntity {
   @Column('timestamptz', { nullable: true, select: false })
   verifyExpire!: Date | null;
 
-  // This is not a column, it is setted on authenthication
-  roles?: AppRole[];
+  // // This is not a column, it is setted on authenthication
+  /**
+   * superadmin = has an access to the whole system without any limits
+   * admin = has nearly full access except managing permissions
+   * support
+   * member
+   */
+  @Column({ default: UserRole.MEMBER })
+  roles!: string;
 }
