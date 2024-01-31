@@ -50,5 +50,5 @@ node_modules/
 .env*
 !.env.template
 
-# Turbo
-.turbo
+# NX
+.nx/cache
