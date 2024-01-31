@@ -1,5 +1,3 @@
-export type EmptyObject = Record<string, never>;
-
 export interface AppConfig {
   app: {
     name: string;

@@ -1,5 +1,5 @@
 import { test } from 'tap';
-import { buildServer, createUser } from './helper';
+import { buildServer, createUser, removeUser } from './helper';
 import { HttpClient } from './http-client';
 import { HttpStatus } from '@nestjs/common';
 import { ApiKeysService } from '../src/api-keys/api-keys.service';
@@ -310,4 +310,6 @@ test('test api-key authentication', async ({ equal, teardown }) => {
     equal(response.statusCode, HttpStatus.UNPROCESSABLE_ENTITY);
     equal(response.body.message, 'Your api key is expired');
   }
+
+  await removeUser(user.id, app);
 });

@@ -4,7 +4,7 @@
   "description": "",
   "scripts": {
     "build": "pnpm clean && nest build",
-    "clean": "rm -rf coverage dist .nyc_output",
+    "clean": "rm -rf .tap dist",
     "format": "prettier --list-different .",
     "format:fix": "prettier --write .",
     "start": "nest start",
@@ -13,8 +13,10 @@
     "start:prod": "node dist/main",
     "lint": "eslint",
     "lint:fix": "eslint --fix",
-    "test": "tap --ts",
-    "test:dev": "tap --ts --watch"
+    "test": "tap",
+    "test:dev": "tap repl w",
+    "test:ci": "pnpm test:cov",
+    "test:cov": "tap && tap report lcov"
   },
   "author": "Andrea Fassina <andrea.fassina82@gmail.com>",
   "repository": {
@@ -46,15 +48,10 @@
     "eslint-plugin-prettier": "^5.0.0",
     "prettier": "^3.0.2",
     "source-map-support": "^0.5.21",
-    "tap": "^16.3.7",
+    "tap": "^18.7.0",
     "ts-loader": "^9.4.3",
     "ts-node": "^10.9.1",
     "tsconfig-paths": "^4.2.0",
     "typescript": "^5.1.3"
-  },
-  "tap": {
-    "coverage": true,
-    "check-coverage": false,
-    "coverage-report": "lcov"
   }
 }

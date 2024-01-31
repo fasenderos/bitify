@@ -8,14 +8,16 @@
     "ci:publish": "pnpm publish -r",
     "cleanall": "rm -rf pnpm-lock.yaml node_modules */**/node_modules && pnpm workspace -- clean",
     "clean": "pnpm workspace -- clean",
-    "format": "turbo --concurrency=1 format",
-    "format:fix": "turbo --concurrency=1 format:fix",
-    "lint": "turbo --concurrency=1 lint",
-    "lint:fix": "turbo --concurrency=1 lint:fix",
+    "format": "npx nx run-many -t format",
+    "format:fix": "pnpm clean && npx nx run-many -t format:fix",
+    "lint": "pnpm clean && npx nx run-many -t lint",
+    "lint:fix": "pnpm clean && npx nx run-many -t lint:fix",
     "prepare": "husky install",
-    "release": "turbo release --concurrency=1",
-    "test": "pnpm workspace -- test",
-    "test:dev": "pnpm workspace -- test:dev",
+    "release": "npx nx run-many -t release",
+    "test": "npx nx test @bitify/api-gateway",
+    "test:dev": "npx nx test:dev @bitify/api-gateway",
+    "test:ci": "npx nx test:ci @bitify/api-gateway",
+    "test:cov": "npx nx test:cov @bitify/api-gateway",
     "start": "pnpm workspace -- start",
     "start:dev": "pnpm workspace -- start:dev",
     "workspace": "pnpm -r --workspace-concurrency=1"
@@ -29,7 +31,7 @@
     "@tsconfig/strictest": "^2.0.1",
     "husky": "^8.0.0",
     "lint-staged": "^14.0.1",
-    "turbo": "^1.10.14"
+    "nx": "17.2.8"
   },
   "keywords": [
     "trading",

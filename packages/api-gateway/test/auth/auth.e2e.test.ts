@@ -16,7 +16,7 @@ import { ConfigService } from '@nestjs/config';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { ResetPasswordTransaction } from '../../src/auth/transactions/reset-password.transaction';
 
-test('AuthController', async ({ equal, mock, teardown }) => {
+test('AuthController', async ({ equal, mockRequire, teardown }) => {
   const app = await buildServer();
   teardown(async () => await app.close());
   const http = new HttpClient(app);
@@ -144,7 +144,13 @@ test('AuthController', async ({ equal, mock, teardown }) => {
   equal(disable2FA.statusCode, HttpStatus.OK);
 
   // Test Forgot Password
-  const newPassword = await testForgotPassword(user, app, equal, mock, http);
+  const newPassword = await testForgotPassword(
+    user,
+    app,
+    equal,
+    mockRequire,
+    http,
+  );
 
   // Test login again with old password
   const oldPasswordLogin = await http.login(user.email, mockUser.password);
@@ -392,6 +398,7 @@ const testLogin = async (
 
   {
     // Set an invalid user state
+    // @ts-expect-error state is invalid
     await userService.updateById(id, { state: 3 });
     const login = await http.login(email, password);
     equal(login.statusCode, HttpStatus.INTERNAL_SERVER_ERROR);

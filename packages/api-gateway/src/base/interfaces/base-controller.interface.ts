@@ -1,10 +1,18 @@
-import { DeepPartial } from 'typeorm';
-import { BaseEntity } from '../base.entity';
+import { DeepPartial, ObjectLiteral } from 'typeorm';
 import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity';
 import { User } from '../../users/entities/user.entity';
 
+export class BaseCrudOptions<T> {
+  // filter params to be used in find methods e.g. { state: 'active' }
+  // if can be retrivied only entities in active state
+  visibility?: Partial<T>;
+
+  // Entity with `userId` column
+  belongsToUser?: boolean;
+}
+
 export interface IBaseController<
-  T extends BaseEntity & { userId?: string },
+  T extends ObjectLiteral & { userId?: string },
   C extends DeepPartial<T>,
   U extends QueryDeepPartialEntity<T>,
 > {

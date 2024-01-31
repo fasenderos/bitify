@@ -1,5 +1,5 @@
 import { name, version } from '../package.json';
-import { AppConfig } from '../typings/common';
+import { AppConfig } from './common/interfaces';
 
 function ensureValues(
   key: string,

@@ -17,6 +17,5 @@
     "noImplicitAny": true,
     "strictBindCallApply": true,
     "resolveJsonModule": true
-  },
-  "typeRoots": ["./node_modules/@types", "./typings"]
+  }
 }

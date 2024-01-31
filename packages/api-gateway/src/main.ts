@@ -6,9 +6,9 @@ import {
 import { AppModule } from './app.module';
 import { ConfigService } from '@nestjs/config';
 import { Logger } from 'nestjs-pino';
-import { AppConfig } from '../typings/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ValidationPipe } from '@nestjs/common';
+import { AppConfig } from './common/interfaces';
 
 async function bootstrap(): Promise<void> {
   const app = await NestFactory.create<NestFastifyApplication>(

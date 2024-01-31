@@ -1,0 +1,22 @@
+{
+  "targetDefaults": {
+    "format": {
+      "cache": true
+    },
+    "format:fix": {
+      "cache": true
+    },
+    "build": {
+      "cache": true
+    },
+    "lint": {
+      "cache": true
+    },
+    "lint:fix": {
+      "cache": true
+    }
+  },
+  "affected": {
+    "defaultBase": "main"
+  }
+}

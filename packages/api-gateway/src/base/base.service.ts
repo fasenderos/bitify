@@ -3,16 +3,17 @@ import {
   DeleteResult,
   FindManyOptions,
   FindOptionsWhere,
+  ObjectLiteral,
   Repository,
+  SelectQueryBuilder,
   UpdateResult,
 } from 'typeorm';
 import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity';
-import { BaseEntity } from './base.entity';
 import { IBaseService } from './interfaces/base-service.interface';
 import { UnprocessableEntityException } from '@nestjs/common';
 
 export abstract class BaseService<
-  Entity extends BaseEntity,
+  Entity extends ObjectLiteral & { userId?: string },
   CreateDTO extends DeepPartial<Entity>,
   UpdateDTO extends QueryDeepPartialEntity<Entity>,
 > implements IBaseService<Entity, CreateDTO, UpdateDTO>
@@ -28,6 +29,14 @@ export abstract class BaseService<
   createEntity(data: CreateDTO, userId: string): Entity {
     // Instantiating the entity before saving so hooks run
     return this.repo.create({ ...data, userId: userId });
+  }
+
+  queryBuilder(alias?: string): SelectQueryBuilder<Entity> {
+    return this.repo.createQueryBuilder(alias);
+  }
+
+  sql(query: string, parameters?: any[]) {
+    return this.repo.manager.query(query, parameters);
   }
 
   /**
@@ -75,7 +84,10 @@ export abstract class BaseService<
    * @returns The entity that match the conditions or null.
    */
   findById(id: string, unselected = false): Promise<Entity | null> {
-    return this.findOne({ id } as FindOptionsWhere<Entity>, unselected);
+    return this.findOne(
+      { id } as unknown as FindOptionsWhere<Entity>,
+      unselected,
+    );
   }
 
   /**

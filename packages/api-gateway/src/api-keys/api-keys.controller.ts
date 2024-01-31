@@ -11,7 +11,9 @@ const BaseController = ControllerFactory<
   ApiKey,
   CreateApiKeyDto,
   UpdateApiKeyDto
->(CreateApiKeyDto, UpdateApiKeyDto, Collections.APIKEYS);
+>(CreateApiKeyDto, UpdateApiKeyDto, Collections.APIKEYS, {
+  belongsToUser: true,
+});
 
 @ApiTags(Collections.APIKEYS)
 @Controller(Collections.APIKEYS)
