@@ -42,7 +42,7 @@ jobs:
           node-version: "18"
           registry-url: "https://registry.npmjs.org"
           cache: "pnpm"
-      - uses: webfactory/ssh-agent@v0.8.0
+      - uses: webfactory/ssh-agent@v0.10.0
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
       - name: git config
